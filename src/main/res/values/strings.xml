@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TrustPin Sample App</string>
+    <string name="setup_trustpin">Setup TrustPin</string>
+    <string name="setup_trustpin_configured">TrustPin Configured ✓</string>
+    <string name="test_connection">Test Connection</string>
+    <string name="fetch_certificate">Fetch Certificate</string>
+    <string name="status_fetching_cert">Fetching certificate...</string>
+    <string name="organization_id">Organization ID</string>
+    <string name="project_id">Project ID</string>
+    <string name="public_key">Public Key</string>
+    <string name="test_url">Test URL</string>
+    <string name="status">Status</string>
+    <string name="clear_log">Clear Log</string>
+    <string name="log_output">Log Output</string>
+    <string name="hint_org_id">Enter your organization ID</string>
+    <string name="hint_project_id">Enter your project ID</string>
+    <string name="hint_public_key">Enter your base64 public key</string>
+    <string name="hint_test_url">https://api.example.com</string>
+    <string name="status_not_configured">TrustPin not configured</string>
+    <string name="status_configured">TrustPin configured</string>
+    <string name="status_testing">Testing connection...</string>
+    <string name="default_url">https://api.trustpin.cloud/health</string>
+    <string name="test_organization_id">fb52418e-b5ae-4bff-b973-6da9ae07ba00</string>
+    <string name="test_project_id">c14cf5c1-9a37-4204-b48e-0bf4c95b28f3</string>
+    <string name="test_public_key">MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEvYfRJiY51wo1p2fyDt2CqOW6jGxoyZCNJXAEMPw3ZqVcjAZkSBARxWBQlFJ+si8FCReuVplDHFWwXt7nfpFNLw==</string>
+</resources>
