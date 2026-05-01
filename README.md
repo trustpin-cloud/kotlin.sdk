@@ -11,15 +11,12 @@ Available on Maven Central: [`cloud.trustpin:kotlin-sdk`](https://central.sonaty
 
 ## 🚀 Key Features
 
-- ✅ **Kotlin Multiplatform** - Shared codebase for Android and JVM platforms
-- ✅ **Flexible Pinning Modes** - Strict validation or permissive mode for development
-- ✅ **Multiple Hash Algorithms** - SHA-256 and SHA-512 certificate validation
-- ✅ **Signed Configuration** - Cryptographically signed pinning configurations
-- ✅ **Android/JVM Integrations** - Built-in TrustManager and SSLSocketFactory support
-- ✅ **Intelligent Caching** - 10-minute configuration cache with stale fallback
-- ✅ **Comprehensive Logging** - Configurable log levels for debugging and monitoring
-- ✅ **Thread-Safe** - Built with coroutines and concurrent-safe operations
-- ✅ **Enhanced Security** - Advanced signature verification with multiple authentication methods
+- ✅ **Android & JVM support** with a single artifact
+- ✅ **Strict or permissive pinning** — enforce in production, relax during development
+- ✅ **Drop-in integration** — `TrustManager` and `SSLSocketFactory` for OkHttp / `HttpsURLConnection`
+- ✅ **Managed configuration** delivered from TrustPin and cached locally
+- ✅ **Configurable logging** for diagnostics
+- ✅ **Coroutine- and Java-friendly APIs**
 ## 🏗️ Architecture
 
 TrustPin SDK provides comprehensive certificate pinning functionality with minimal dependencies:
@@ -49,7 +46,7 @@ Add to your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:4.0.0")
+    implementation("cloud.trustpin:kotlin-sdk:4.1.0")
 }
 ```
 
@@ -59,7 +56,7 @@ Add to your `build.gradle`:
 
 ```groovy
 dependencies {
-    implementation 'cloud.trustpin:kotlin-sdk:4.0.0'
+    implementation 'cloud.trustpin:kotlin-sdk:4.1.0'
 }
 ```
 
@@ -466,17 +463,6 @@ TrustPin.setLogLevel(TrustPinLogLevel.DEBUG)
 // TrustPinLogLevel.DEBUG  - All messages including debug information
 ```
 
-### Example Debug Output
-
-```
-[14:30:15] [DEBUG] Starting certificate verification for domain: api.example.com
-[14:30:15] [DEBUG] Sanitized domain: api.example.com
-[14:30:15] [INFO] Using cached configuration
-[14:30:15] [DEBUG] Found domain configuration with 2 pins
-[14:30:15] [DEBUG] Certificate hash matches sha256 pin for domain api.example.com
-[14:30:15] [INFO] Valid pin found for api.example.com
-```
-
 ---
 
 ## 🏗 Best Practices
@@ -491,9 +477,8 @@ TrustPin.setLogLevel(TrustPinLogLevel.DEBUG)
 
 ### Performance Optimization
 
-1. **Cache TrustPin configuration** (handled automatically)
-2. **Reuse OkHttpClient instances** with TrustPin interceptor
-3. **Use appropriate log levels** (`ERROR` or `NONE` in production)
+1. **Reuse `OkHttpClient` instances** — don't rebuild the factory per request
+2. **Use `ERROR` or `NONE` log levels** in production
 
 ### Development Workflow
 
@@ -617,7 +602,14 @@ object TrustPin {
     
     // Verify certificate against configured pins
     suspend fun verify(domain: String, certificate: X509Certificate)
-    
+
+    // Verify a PEM-encoded certificate against configured pins
+    suspend fun verify(domain: String, certificate: String)
+
+    // Verify the leaf of a server-presented chain. Empty chains and chains exceeding
+    // the SDK's internal length limit are rejected before any pin comparison.
+    suspend fun verify(domain: String, chain: List<X509Certificate>)
+
     // Blocking API (for Java interop and non-coroutine contexts)
     
     // Initialize SDK with project credentials (blocking)
@@ -639,7 +631,13 @@ object TrustPin {
     
     // Verify certificate against configured pins (blocking)
     fun verifyBlocking(domain: String, certificate: X509Certificate)
-    
+
+    // Verify a PEM-encoded certificate against configured pins (blocking)
+    fun verifyBlocking(domain: String, certificate: String)
+
+    // Verify the leaf of a server-presented chain (blocking)
+    fun verifyBlocking(domain: String, chain: List<X509Certificate>)
+
     // Configure logging verbosity (non-suspend)
     fun setLogLevel(level: TrustPinLogLevel)
 }
@@ -672,13 +670,16 @@ Detailed error types for different failure scenarios.
 
 ```kotlin
 sealed class TrustPinError : Exception() {
-    object InvalidProjectConfig : TrustPinError()        // Invalid setup parameters
-    object ErrorFetchingPinningInfo : TrustPinError()    // Network/CDN error
-    object InvalidServerCert : TrustPinError()           // Invalid certificate format
-    object PinsMismatch : TrustPinError()                // Certificate doesn't match pins
-    object AllPinsExpired : TrustPinError()              // All pins have expired
-    object ConfigurationValidationFailed : TrustPinError() // Configuration signature failed
-    object DomainNotRegistered : TrustPinError()         // Domain not configured (strict mode)
+    object InvalidProjectConfig : TrustPinError()          // Invalid setup parameters
+    object SetupInProgress : TrustPinError()               // Another setup() call is in flight; retry later
+    object LockTimeout : TrustPinError()                   // Internal state lock could not be acquired (pathology)
+    object NotInitialized : TrustPinError()                // verify() called before setup() completed
+    object ErrorFetchingPinningInfo : TrustPinError()      // Configuration fetch failed
+    object InvalidServerCert : TrustPinError()             // Invalid certificate format
+    object PinsMismatch : TrustPinError()                  // Certificate doesn't match pins
+    object AllPinsExpired : TrustPinError()                // All pins have expired
+    object ConfigurationValidationFailed : TrustPinError() // Configuration validation failed
+    object DomainNotRegistered : TrustPinError()           // Domain not configured (strict mode)
 }
 ```
 

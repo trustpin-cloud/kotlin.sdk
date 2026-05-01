@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
-    <title>PinsMismatch</title>
+    <title>LockTimeout</title>
     <link href="../../../../images/logo-icon.svg" rel="icon" type="image/svg">
         <script>var pathToRoot = "../../../../";</script>
     <script>document.documentElement.classList.replace("no-js", "js");</script>
@@ -104,11 +104,11 @@
         </nav>
         <div id="resizer" class="resizer" data-item-type="BAR"></div>
         <div id="main" data-item-type="SECTION" role="main">
-<div class="main-content" data-page-type="classlike" id="content" pageIds="TrustPin Kotlin SDK::cloud.trustpin.kotlin.sdk/TrustPinError.PinsMismatch///PointingToDeclaration//-251573632">
-  <div class="breadcrumbs"><a href="../../../../index.html">TrustPin Kotlin SDK</a><span class="delimiter">/</span><a href="../../index.html">cloud.trustpin.kotlin.sdk</a><span class="delimiter">/</span><a href="../index.html">TrustPinError</a><span class="delimiter">/</span><span class="current">PinsMismatch</span></div>
+<div class="main-content" data-page-type="classlike" id="content" pageIds="TrustPin Kotlin SDK::cloud.trustpin.kotlin.sdk/TrustPinError.LockTimeout///PointingToDeclaration//-251573632">
+  <div class="breadcrumbs"><a href="../../../../index.html">TrustPin Kotlin SDK</a><span class="delimiter">/</span><a href="../../index.html">cloud.trustpin.kotlin.sdk</a><span class="delimiter">/</span><a href="../index.html">TrustPinError</a><span class="delimiter">/</span><span class="current">LockTimeout</span></div>
   <div class="cover ">
-    <h1 class="cover"><span>Pins</span><wbr></wbr><span><span>Mismatch</span></span></h1>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="index.html">PinsMismatch</a> : <a href="../index.html">TrustPinError</a><span class="source-link-wrapper"><span class="source-link" data-element-type="source-link">(<a href="https://github.com/trustpin-cloud/TrustPin-Kotlin/tree/main/src/main/kotlin/cloud/trustpin/kotlin/sdk/TrustPinError.kt#L107">source</a>)</span></span></div><p class="paragraph">The presented certificate does not match any configured pin for the domain.</p><p class="paragraph">This is a security-significant failure. Do not retry; surface as a potential MITM indicator and block the connection.</p><h4 class="tableheader">See also</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":/main" data-filterable-set=":/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../-trust-pin/verify.html"><span>TrustPin.</span><wbr></wbr><span>verify</span></a></div></span></div><div></div></div></div></div></div></div>
+    <h1 class="cover"><span>Lock</span><wbr></wbr><span><span>Timeout</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="index.html">LockTimeout</a> : <a href="../index.html">TrustPinError</a><span class="source-link-wrapper"><span class="source-link" data-element-type="source-link">(<a href="https://github.com/trustpin-cloud/TrustPin-Kotlin/tree/main/src/main/kotlin/cloud/trustpin/kotlin/sdk/TrustPinError.kt#L58">source</a>)</span></span></div><p class="paragraph">The mutex backing the SDK's state machine could not be acquired within the configured timeout. Signals genuine pathology — a hung operation or deadlock — not a transient retryable condition.</p><p class="paragraph">Recovery: do not retry; investigate logs, consider recreating the <a href="../../-trust-pin/index.html">TrustPin</a> instance.</p></div></div>
   </div>
   <div class="tabbedcontent">
     <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
