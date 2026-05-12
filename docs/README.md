@@ -1,20 +1,21 @@
 # TrustPin Kotlin SDK Documentation
 
-[![Kotlin](https://img.shields.io/badge/Kotlin-1.9.25%2B-purple.svg)](https://kotlinlang.org)
-[![Android](https://img.shields.io/badge/Android-API%2021%2B-green.svg)](https://developer.android.com)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3.0%2B-purple.svg)](https://kotlinlang.org)
+[![Android](https://img.shields.io/badge/Android-API%2025%2B-green.svg)](https://developer.android.com)
 [![JVM](https://img.shields.io/badge/JVM-11%2B-blue.svg)](https://adoptopenjdk.net)
 
-[TrustPin](https://trustpin.cloud/) is a modern, lightweight, and secure Kotlin library designed to enforce **SSL Certificate Pinning** for Android and JVM applications. Built with Kotlin Coroutines and following OWASP security recommendations, TrustPin prevents man-in-the-middle (MITM) attacks by ensuring server authenticity at the TLS level.
+[TrustPin](https://trustpin.cloud/) is a modern, lightweight, and secure Kotlin library designed to enforce **SSL Certificate Pinning** for Android applications. The Maven Central artifact is an Android AAR with bundled R8/ProGuard consumer rules. JVM/server/desktop customers should request access to the hardened JVM JAR file via [support@trustpin.cloud](mailto:support@trustpin.cloud).
 
 ---
 
 ## 🚀 Key Features
 
-- ✅ **Kotlin Multiplatform** - Shared codebase for Android and JVM platforms
+- ✅ **Android AAR on Maven Central** - Ships with bundled R8/ProGuard consumer rules
+- ✅ **Hardened JVM JAR by request** - Private/manual distribution for server and desktop customers
 - ✅ **Flexible Pinning Modes** - Strict validation or permissive mode for development
 - ✅ **Multiple Hash Algorithms** - SHA-256 and SHA-512 certificate validation
 - ✅ **Signed Configuration** - Cryptographically signed pinning configurations
-- ✅ **Android/JVM Integrations** - Built-in TrustManager and SSLSocketFactory support
+- ✅ **Android integrations** - Built-in TrustManager and SSLSocketFactory support
 - ✅ **Intelligent Caching** - 10-minute configuration cache with stale fallback
 - ✅ **Comprehensive Logging** - Configurable log levels for debugging and monitoring
 - ✅ **Thread-Safe** - Built with coroutines and concurrent-safe operations
@@ -26,35 +27,35 @@
 
 | Platform | Minimum Version | Notes |
 |----------|----------------|-------|
-| Android | API 25 (7.1+) | Full feature support |
-| JVM | Java 11+ | Desktop/Server applications |
+| Android | API 25+ | Full feature support |
+| JVM | Java 11+ | Hardened JAR available by request |
 | Kotlin | 2.3.0+ | Built with Kotlin 2.3.0 |
 
 ---
 
 ## 📦 Installation
 
-### Gradle (Kotlin DSL)
+### Android Gradle (Kotlin DSL)
 
 Add to your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:4.1.0")
+    implementation("cloud.trustpin:kotlin-sdk:4.2.0")
 }
 ```
 
-### Gradle (Groovy)
+### Android Gradle (Groovy)
 
 Add to your `build.gradle`:
 
 ```groovy
 dependencies {
-    implementation 'cloud.trustpin:kotlin-sdk:4.1.0'
+    implementation 'cloud.trustpin:kotlin-sdk:4.2.0'
 }
 ```
 
-### Maven
+### Android Maven
 
 Add to your `pom.xml`:
 
@@ -62,9 +63,13 @@ Add to your `pom.xml`:
 <dependency>
     <groupId>cloud.trustpin</groupId>
     <artifactId>kotlin-sdk</artifactId>
-    <version>4.1.0</version>
+    <version>4.2.0</version>
 </dependency>
 ```
+
+### JVM
+
+The Maven Central artifact is an Android AAR. For JVM/server/desktop use, request access to the hardened JVM JAR file via [support@trustpin.cloud](mailto:support@trustpin.cloud).
 
 ---
 

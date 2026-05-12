@@ -1,17 +1,20 @@
 # TrustPin Kotlin SDK
 
-[![Kotlin](https://img.shields.io/badge/Kotlin-1.9.25%2B-purple.svg)](https://kotlinlang.org)
-[![Android](https://img.shields.io/badge/Android-API%2021%2B-green.svg)](https://developer.android.com)
-[![JVM](https://img.shields.io/badge/JVM-8%2B-blue.svg)](https://adoptopenjdk.net)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3.0%2B-purple.svg)](https://kotlinlang.org)
+[![Android](https://img.shields.io/badge/Android-API%2025%2B-green.svg)](https://developer.android.com)
+[![JVM](https://img.shields.io/badge/JVM-11%2B-blue.svg)](https://adoptopenjdk.net)
 [![License](https://img.shields.io/badge/License-TrustPin-green.svg)](LICENSE)
 
-TrustPin is a modern, lightweight, and secure Kotlin Multiplatform library for **SSL Certificate Pinning** in Android and JVM applications. Built with Kotlin Coroutines and following OWASP security recommendations, TrustPin prevents man-in-the-middle (MITM) attacks by ensuring server authenticity at the TLS level.
+TrustPin is a modern, lightweight, and secure Kotlin library for **SSL Certificate Pinning** in Android applications, with a hardened JVM JAR available by request for server and desktop customers. Built with Kotlin Coroutines and following OWASP security recommendations, TrustPin prevents man-in-the-middle (MITM) attacks by ensuring server authenticity at the TLS level.
 
-Available on Maven Central: [`cloud.trustpin:kotlin-sdk`](https://central.sonatype.com/artifact/cloud.trustpin/kotlin-sdk)
+Available on Maven Central for Android as an AAR: [`cloud.trustpin:kotlin-sdk`](https://central.sonatype.com/artifact/cloud.trustpin/kotlin-sdk)
+
+JVM customers should request access to the hardened JVM JAR file via email at [support@trustpin.cloud](mailto:support@trustpin.cloud).
 
 ## 🚀 Key Features
 
-- ✅ **Android & JVM support** with a single artifact
+- ✅ **Android AAR on Maven Central** with bundled R8/ProGuard consumer rules
+- ✅ **Hardened JVM JAR** available by request for desktop/server customers
 - ✅ **Strict or permissive pinning** — enforce in production, relax during development
 - ✅ **Drop-in integration** — `TrustManager` and `SSLSocketFactory` for OkHttp / `HttpsURLConnection`
 - ✅ **Managed configuration** delivered from TrustPin and cached locally
@@ -32,35 +35,35 @@ TrustPin SDK provides comprehensive certificate pinning functionality with minim
 
 | Platform | Minimum Version | Notes |
 |----------|----------------|-------|
-| Android | API 21+ (Recommended: API 25+) | Full feature support |
-| JVM | Java 11+ | Desktop/Server applications |
+| Android | API 25+ | Full feature support |
+| JVM | Java 11+ | Hardened JAR available by request |
 | Kotlin | 2.3.0+ | Built with Kotlin 2.3.0 |
 
 ---
 
 ## 📦 Installation
 
-### Gradle (Kotlin DSL)
+### Android Gradle (Kotlin DSL)
 
 Add to your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:4.1.0")
+    implementation("cloud.trustpin:kotlin-sdk:4.2.0")
 }
 ```
 
-### Gradle (Groovy)
+### Android Gradle (Groovy)
 
 Add to your `build.gradle`:
 
 ```groovy
 dependencies {
-    implementation 'cloud.trustpin:kotlin-sdk:4.1.0'
+    implementation 'cloud.trustpin:kotlin-sdk:4.2.0'
 }
 ```
 
-### Maven
+### Android Maven
 
 Add to your `pom.xml`:
 
@@ -71,6 +74,14 @@ Add to your `pom.xml`:
     <version>1.2.0</version>
 </dependency>
 ```
+
+### JVM
+
+The Maven Central artifact is an Android AAR. For JVM/server/desktop use, request access to the hardened JVM JAR file via email at [support@trustpin.cloud](mailto:support@trustpin.cloud).
+
+### R8 / ProGuard
+
+The Android AAR ships consumer rules automatically. Android applications should not need to add TrustPin-specific keep rules. The SDK keeps the documented public API stable while obfuscating internal and private implementation details as much as possible.
 
 ---
 
