@@ -49,7 +49,7 @@ Add to your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:4.2.0")
+    implementation("cloud.trustpin:kotlin-sdk:4.3.0")
 }
 ```
 
@@ -59,7 +59,7 @@ Add to your `build.gradle`:
 
 ```groovy
 dependencies {
-    implementation 'cloud.trustpin:kotlin-sdk:4.2.0'
+    implementation 'cloud.trustpin:kotlin-sdk:4.3.0'
 }
 ```
 
@@ -131,6 +131,88 @@ suspend fun setupDevelopment() {
     )
 }
 ```
+
+---
+
+## 📄 Setup via `trustpin.json` (Android)
+
+As an alternative to programmatic setup, the **default** TrustPin instance can be configured from a JSON file shipped in your application's `assets/` directory — the same pattern used by `google-services.json`.
+
+### 1. Add the file
+
+Place a `trustpin.json` file at `app/src/main/assets/trustpin.json`:
+
+```json
+{
+  "organization_id": "your-org-id",
+  "project_id": "your-project-id",
+  "public_key": "MFkwEwYH...",
+  "mode": "strict",
+  "configuration_url": "https://custom.example.com/config/signed.b64"
+}
+```
+
+| Field | Required | Notes |
+|---|---|---|
+| `organization_id` | ✅ | Organization identifier from the TrustPin Dashboard |
+| `project_id` | ✅ | Project identifier from the TrustPin Dashboard |
+| `public_key` | ✅ | Base64-encoded public key issued by the dashboard |
+| `mode` | ❌ | `"strict"` (default) or `"permissive"` |
+| `configuration_url` | ❌ | Optional custom configuration source; must be HTTPS |
+
+Unknown top-level keys are ignored for forward compatibility.
+
+### 2. Load it at setup time
+
+```kotlin
+import cloud.trustpin.kotlin.sdk.TrustPin
+import cloud.trustpin.kotlin.sdk.TrustPinConfiguration
+// Brings the `TrustPinConfiguration.Companion.fromAssets` extension into scope so the
+// `TrustPinConfiguration.fromAssets(context)` call below resolves. This is an
+// extension-function import, not a top-level function call.
+import cloud.trustpin.kotlin.sdk.fromAssets
+
+suspend fun initializeTrustPin(context: Context) {
+    TrustPin.setup(TrustPinConfiguration.fromAssets(context))
+}
+```
+
+From Java:
+
+```java
+import cloud.trustpin.kotlin.sdk.TrustPin;
+import cloud.trustpin.kotlin.sdk.TrustPinConfiguration;
+import cloud.trustpin.kotlin.sdk.TrustPinConfigurationAssets;
+
+void initializeTrustPin(Context context) {
+    TrustPinConfiguration config = TrustPinConfigurationAssets.fromAssets(context);
+    TrustPin.getDefault().setupBlocking(config);
+}
+```
+
+A custom filename can be supplied if needed:
+
+```kotlin
+TrustPinConfiguration.fromAssets(context, fileName = "my-config.json")
+```
+
+### 3. Per-flavor / per-build-type configuration
+
+Per-variant overrides use Android's standard asset-merging — no Gradle plugin required. Drop a `trustpin.json` in the matching source set and the Android Gradle Plugin picks the right one per variant:
+
+```
+app/src/main/assets/trustpin.json     ← default
+app/src/debug/assets/trustpin.json    ← overrides for the `debug` build type
+app/src/ff/assets/trustpin.json       ← overrides for the `ff` product flavor
+```
+
+### Notes and constraints
+
+- **Default instance only.** File-based setup configures `TrustPin.default`. Named instances created with `TrustPin.instance(id)` continue to use programmatic `TrustPinConfiguration(...)` construction.
+- **Android only.** The hardened JVM JAR does not include `fromAssets`. JVM customers continue to construct `TrustPinConfiguration(...)` programmatically.
+- **The file is bundled into the APK** as an asset, the same as `google-services.json`. The `public_key` is not a secret — it is the *verification* key for signed pin payloads — but be aware that the file ships with the application.
+- **Failure modes** (file missing, unreadable, malformed JSON, missing required field, invalid `mode`, non-HTTPS `configuration_url`) all surface as `TrustPinError.InvalidProjectConfig`. A descriptive reason is written to logcat under the `[TrustPin]` tag.
+- **No log-level field.** Log verbosity stays under programmatic control via `TrustPin.setLogLevel(...)`; it is intentionally kept out of the file format so it can vary independently of the bundled configuration.
 
 ---
 
