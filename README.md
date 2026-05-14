@@ -49,7 +49,7 @@ Add to your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:4.3.0")
+    implementation("cloud.trustpin:kotlin-sdk:4.3.1")
 }
 ```
 
@@ -59,7 +59,7 @@ Add to your `build.gradle`:
 
 ```groovy
 dependencies {
-    implementation 'cloud.trustpin:kotlin-sdk:4.3.0'
+    implementation 'cloud.trustpin:kotlin-sdk:4.3.1'
 }
 ```
 
