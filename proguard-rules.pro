@@ -2,9 +2,6 @@
 # You can control the set of applied configuration files using the
 # proguardFiles setting in build.gradle.
 
-# Keep TrustPin SDK classes
--keep class cloud.trustpin.kotlin.sdk.** { *; }
-
 # Keep OkHttp classes
 -keep class okhttp3.** { *; }
 -keep interface okhttp3.** { *; }
