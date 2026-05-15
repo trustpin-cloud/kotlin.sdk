@@ -1,6 +1,8 @@
 $dokka.format:html-v1
 $dokka.linkExtension:html
 $dokka.location:cloud.trustpin.kotlin.sdk////PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/index.html
+$dokka.location:cloud.trustpin.kotlin.sdk//fromAssets/#<ERROR CLASS> ERROR CLASS: Symbol not found for Context#kotlin.String/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/from-assets.html
+$dokka.location:cloud.trustpin.kotlin.sdk//fromAssets/cloud.trustpin.kotlin.sdk.TrustPinConfiguration.Companion#<ERROR CLASS> ERROR CLASS: Symbol not found for Context#kotlin.String/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/from-assets.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion///PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/index.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/default/#/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/default.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/fetchCertificate/#kotlin.String#kotlin.Int#kotlin.Long/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/fetch-certificate.html
