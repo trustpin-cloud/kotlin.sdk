@@ -3,6 +3,7 @@ $dokka.linkExtension:html
 $dokka.location:cloud.trustpin.kotlin.sdk////PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/index.html
 $dokka.location:cloud.trustpin.kotlin.sdk//fromAssets/#<ERROR CLASS> ERROR CLASS: Symbol not found for Context#kotlin.String/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/from-assets.html
 $dokka.location:cloud.trustpin.kotlin.sdk//fromAssets/cloud.trustpin.kotlin.sdk.TrustPinConfiguration.Companion#<ERROR CLASS> ERROR CLASS: Symbol not found for Context#kotlin.String/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/from-assets.html
+$dokka.location:cloud.trustpin.kotlin.sdk//withAndroidStorage/cloud.trustpin.kotlin.sdk.TrustPinConfiguration#<ERROR CLASS> ERROR CLASS: Symbol not found for Context/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/with-android-storage.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion///PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/index.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/default/#/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/default.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/fetchCertificate/#kotlin.String#kotlin.Int#kotlin.Long/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/fetch-certificate.html
@@ -44,6 +45,7 @@ $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinConfiguration/organizationId/#
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinConfiguration/projectId/#/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-configuration/project-id.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinConfiguration/publicKey/#/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-configuration/public-key.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinError.AllPinsExpired///PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-error/-all-pins-expired/index.html
+$dokka.location:cloud.trustpin.kotlin.sdk/TrustPinError.ConfigIntegrityError///PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-error/-config-integrity-error/index.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinError.ConfigurationValidationFailed///PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-error/-configuration-validation-failed/index.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinError.DomainNotRegistered///PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-error/-domain-not-registered/index.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinError.ErrorFetchingPinningInfo///PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-error/-error-fetching-pinning-info/index.html
@@ -55,6 +57,7 @@ $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinError.PinsMismatch///PointingT
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinError.SSLContextSetupFailed///PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-error/-s-s-l-context-setup-failed/index.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinError.SetupInProgress///PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-error/-setup-in-progress/index.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinError.Timeout///PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-error/-timeout/index.html
+$dokka.location:cloud.trustpin.kotlin.sdk/TrustPinError.UnsupportedDevice///PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-error/-unsupported-device/index.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinError///PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-error/index.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinLogLevel.DEBUG///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-log-level/-d-e-b-u-g/index.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinLogLevel.ERROR///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-log-level/-e-r-r-o-r/index.html

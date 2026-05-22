@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>withAndroidStorage</title>
+    <link href="../../images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../styles/style.css" rel="Stylesheet">
+<link href="../../styles/main.css" rel="Stylesheet">
+<link href="../../styles/prism.css" rel="Stylesheet">
+<link href="../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../ui-kit/ui-kit.min.js" defer="defer"></script>
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="../../index.html" tabindex="1">
+                    TrustPin Kotlin SDK
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":/main">jvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":/main"
+                                       data-filter=":/main"/>
+                                <span class="checkbox--icon"></span>
+                                jvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    TrustPin Kotlin SDK
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="member" id="content" pageIds="TrustPin Kotlin SDK::cloud.trustpin.kotlin.sdk//withAndroidStorage/cloud.trustpin.kotlin.sdk.TrustPinConfiguration#&lt;ERROR CLASS&gt; ERROR CLASS: Symbol not found for Context/PointingToDeclaration//-251573632">
+  <div class="breadcrumbs"><a href="../../index.html">TrustPin Kotlin SDK</a><span class="delimiter">/</span><a href="index.html">cloud.trustpin.kotlin.sdk</a><span class="delimiter">/</span><span class="current">withAndroidStorage</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>with</span><wbr></wbr><span>Android</span><wbr></wbr><span><span>Storage</span></span></h1>
+  </div>
+  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="-trust-pin-configuration/index.html">TrustPinConfiguration</a><span class="token punctuation">.</span><a href="with-android-storage.html"><span class="token function">withAndroidStorage</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">context<span class="token operator">: </span>ERROR CLASS: Symbol not found for Context</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-trust-pin-configuration/index.html">TrustPinConfiguration</a><span class="source-link-wrapper"><span class="source-link" data-element-type="source-link">(<a href="https://github.com/trustpin-cloud/TrustPin-Kotlin/tree/main/android-sdk/src/main/kotlin/cloud/trustpin/kotlin/sdk/TrustPinConfigurationAndroid.kt#L75">source</a>)</span></span></div><p class="paragraph">Programmatic Android setup — wires this configuration to the Android <code class="lang-kotlin">Context</code> and returns the same instance.</p><p class="paragraph"><strong>This is one of the two recommended Android setup paths.</strong> Use it when you build the configuration in code (credentials come from runtime config, an MDM channel, A/B-test routing, etc.) instead of from a bundled <code class="lang-kotlin">trustpin.json</code>. The other recommended Android path is <a href="from-assets.html">TrustPinConfiguration.fromAssets</a>, which calls this function internally.</p><p class="paragraph">Skipping this call (or <code class="lang-kotlin">fromAssets(context)</code>) on Android still works but degrades the security profile of the instance. The SDK records this via a one-shot <code class="lang-kotlin">info</code> log. <strong>Always chain this on Android.</strong></p><h2 class="">⚠️ Single-use contract — do not reuse a decorated configuration</h2><p class="paragraph"><strong>A configuration decorated with </strong><code class="strong lang-kotlin"><strong>withAndroidStorage(context)</strong></code><strong> MUST be passed to exactly one </strong><code class="strong lang-kotlin"><strong>TrustPin.setup</strong></code><strong> call.</strong> The decoration is bound to this exact configuration instance and is consumed by the first <code class="lang-kotlin">setup</code>. Reusing the same configuration for a second <code class="lang-kotlin">setup</code> silently downgrades that subsequent instance.</p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">// ✓ Correct — one configuration per setup, each decorated separately.<br>val payments = TrustPinConfiguration(orgId, projId, publicKey)<br>    .withAndroidStorage(context)<br>TrustPin.instance(&quot;payments&quot;).setup(payments)<br><br>val analytics = TrustPinConfiguration(orgId, projId, publicKey)<br>    .withAndroidStorage(context)<br>TrustPin.instance(&quot;analytics&quot;).setup(analytics)<br><br>// ✗ Wrong — second setup silently downgrades.<br>val shared = TrustPinConfiguration(orgId, projId, publicKey)<br>    .withAndroidStorage(context)<br>TrustPin.default.setup(shared)<br>TrustPin.instance(&quot;payments&quot;).setup(shared)  // &lt;- downgraded!</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><p class="paragraph">The same rule applies to <a href="from-assets.html">TrustPinConfiguration.fromAssets</a>: each call returns a freshly decorated configuration suitable for one <code class="lang-kotlin">setup</code>. Call <code class="lang-kotlin">fromAssets</code> again to get a fresh configuration for a second instance.</p><h2 class="">Usage</h2><p class="paragraph">From Kotlin:</p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">val config = TrustPinConfiguration(orgId, projId, publicKey)<br>    .withAndroidStorage(context)<br>TrustPin.setup(config)</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><p class="paragraph">From Java:</p><div class="sample-container"><pre><code class="block lang-java" theme="idea">TrustPinConfiguration config = TrustPinConfigurationAndroid.withAndroidStorage(<br>    new TrustPinConfiguration(orgId, projId, publicKey, TrustPinMode.STRICT, null),<br>    context<br>);<br>TrustPin.getDefault().setupBlocking(config);</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><span class="kdoc-tag"><h4 class="">Return</h4><p class="paragraph">The same <a href="-trust-pin-configuration/index.html">TrustPinConfiguration</a> instance, decorated and ready for <strong>one</strong> <code class="lang-kotlin">setup</code> call.</p></span><h4 class="tableheader">Parameters</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":/main" data-filterable-set=":/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>context</span></span></u></div></span></div><div><div class="title"><p class="paragraph">Any Android <code class="lang-kotlin">Context</code>; <code class="lang-kotlin">context.applicationContext</code> is captured.</p></div></div></div></div></div></div></div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>© 2026 TrustPin. All rights reserved. | <a href='https://trustpin.cloud'>Website</a> | <a href='https://github.com/trustpin-cloud/TrustPin-Kotlin/blob/main/LICENSE'>License</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

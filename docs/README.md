@@ -4,22 +4,26 @@
 [![Android](https://img.shields.io/badge/Android-API%2025%2B-green.svg)](https://developer.android.com)
 [![JVM](https://img.shields.io/badge/JVM-11%2B-blue.svg)](https://adoptopenjdk.net)
 
-[TrustPin](https://trustpin.cloud/) is a modern, lightweight, and secure Kotlin library designed to enforce **SSL Certificate Pinning** for Android applications. The Maven Central artifact is an Android AAR with bundled R8/ProGuard consumer rules. JVM/server/desktop customers should request access to the hardened JVM JAR file via [support@trustpin.cloud](mailto:support@trustpin.cloud).
+[TrustPin](https://trustpin.cloud/) is a modern, lightweight, and secure Kotlin library that enforces **SSL Certificate Pinning** for **Android** applications. The Maven Central artifact is an Android AAR with bundled R8/ProGuard consumer rules.
+
+> JVM/server/desktop support exists as a separately distributed hardened JAR. This documentation focuses on Android — JVM customers should request access via [support@trustpin.cloud](mailto:support@trustpin.cloud).
 
 ---
 
 ## 🚀 Key Features
 
-- ✅ **Android AAR on Maven Central** - Ships with bundled R8/ProGuard consumer rules
-- ✅ **Hardened JVM JAR by request** - Private/manual distribution for server and desktop customers
-- ✅ **Flexible Pinning Modes** - Strict validation or permissive mode for development
-- ✅ **Multiple Hash Algorithms** - SHA-256 and SHA-512 certificate validation
-- ✅ **Signed Configuration** - Cryptographically signed pinning configurations
-- ✅ **Android integrations** - Built-in TrustManager and SSLSocketFactory support
-- ✅ **Intelligent Caching** - 10-minute configuration cache with stale fallback
-- ✅ **Comprehensive Logging** - Configurable log levels for debugging and monitoring
-- ✅ **Thread-Safe** - Built with coroutines and concurrent-safe operations
-- ✅ **Enhanced Security** - Advanced signature verification with multiple authentication methods
+- ✅ **Android AAR on Maven Central** — Ships with bundled R8/ProGuard consumer rules
+- ✅ **`Context`-aware Android setup** — Bundle credentials as `assets/trustpin.json` and load them with a single call
+- ✅ **Anti-rollback storage on Android** — Pinning configuration is sealed against downgrade attacks
+- ✅ **Integrity check on Android** — Refuses to operate on non-production / tampered runtime environments
+- ✅ **Flexible Pinning Modes** — Strict validation or permissive mode for development
+- ✅ **Multiple Hash Algorithms** — SHA-256 and SHA-512 certificate validation
+- ✅ **Signed Configuration** — Cryptographically signed pinning configurations
+- ✅ **Built-in TrustManager & SSLSocketFactory** — Drop into OkHttp, Retrofit, Ktor, `HttpsURLConnection`
+- ✅ **Multi-instance support** — Isolated pinning contexts for multi-tenant apps and libraries
+- ✅ **Intelligent Caching** — 10-minute configuration cache with stale fallback
+- ✅ **Comprehensive Logging** — Configurable log levels for debugging and monitoring
+- ✅ **Thread-Safe** — Built with coroutines and concurrent-safe operations
 
 ---
 
@@ -28,8 +32,9 @@
 | Platform | Minimum Version | Notes |
 |----------|----------------|-------|
 | Android | API 25+ | Full feature support |
-| JVM | Java 11+ | Hardened JAR available by request |
 | Kotlin | 2.3.0+ | Built with Kotlin 2.3.0 |
+
+> A hardened JVM JAR is available separately by request for server/desktop use — see [support@trustpin.cloud](mailto:support@trustpin.cloud). This documentation covers the Android distribution only.
 
 ---
 
@@ -37,444 +42,394 @@
 
 ### Android Gradle (Kotlin DSL)
 
-Add to your `build.gradle.kts`:
-
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:4.3.2")
+    implementation("cloud.trustpin:kotlin-sdk:5.0.0")
 }
 ```
 
 ### Android Gradle (Groovy)
 
-Add to your `build.gradle`:
-
 ```groovy
 dependencies {
-    implementation 'cloud.trustpin:kotlin-sdk:4.3.2'
+    implementation 'cloud.trustpin:kotlin-sdk:5.0.0'
 }
 ```
 
 ### Android Maven
 
-Add to your `pom.xml`:
-
 ```xml
 <dependency>
     <groupId>cloud.trustpin</groupId>
     <artifactId>kotlin-sdk</artifactId>
-    <version>4.3.2</version>
+    <version>5.0.0</version>
 </dependency>
 ```
-
-### JVM
-
-The Maven Central artifact is an Android AAR. For JVM/server/desktop use, request access to the hardened JVM JAR file via [support@trustpin.cloud](mailto:support@trustpin.cloud).
 
 ---
 
 ## 🔧 Quick Setup
 
-### 1. Create and Configure
+`TrustPin.setup` accepts a `TrustPinConfiguration`. On Android there are two recommended ways to build one:
+
+| Path | Recommended path | What you write |
+|---|---|---|
+| **A** — credentials bundled with the app | `TrustPinConfiguration.fromAssets(context)` | A `trustpin.json` in `src/main/assets/` |
+| **B** — credentials supplied at runtime | `TrustPinConfiguration(...).withAndroidStorage(context)` | Kotlin code |
+
+> ⚠️ **On Android, always use one of the two `Context`-aware paths.** Constructing a bare `TrustPinConfiguration` still works, but the SDK logs an `info` message and the instance runs with a degraded security profile (no anti-rollback storage, no integrity check). Treat it as a misconfiguration, not a feature.
+
+### Path A — Bundled JSON (Android, recommended)
+
+This is the primary Android entry point. Drop a `trustpin.json` into the app module's assets directory and load it with one call.
+
+**`app/src/main/assets/trustpin.json`** (schema is `snake_case`):
+
+```json
+{
+  "organization_id": "my-org",
+  "project_id":      "my-project",
+  "public_key":      "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE...",
+  "mode":            "strict"
+}
+```
+
+`organization_id`, `project_id`, `public_key` are required. `mode` is `"strict"` (default) or `"permissive"`. An optional `configuration_url` overrides the hosted configuration source — when present it must use HTTPS. Unknown top-level keys are ignored for forward compatibility.
+
+**Per-flavor / per-build-type overrides** ride on standard Android source-set asset merging — no Gradle plugin required:
+
+```
+app/src/main/assets/trustpin.json      ← default
+app/src/debug/assets/trustpin.json     ← debug build type
+app/src/staging/assets/trustpin.json   ← "staging" product flavor
+```
+
+**Kotlin:**
 
 ```kotlin
 import cloud.trustpin.kotlin.sdk.TrustPin
+import cloud.trustpin.kotlin.sdk.TrustPinConfiguration
+import cloud.trustpin.kotlin.sdk.fromAssets
+
+class App : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        applicationScope.launch {
+            try {
+                TrustPin.setup(TrustPinConfiguration.fromAssets(this@App))
+            } catch (e: TrustPinError) {
+                // Hard stop. Do NOT fall through to an unpinned HTTP client.
+                showRetryUi(e)
+            }
+        }
+    }
+}
+```
+
+### Path B — Programmatic config (Android)
+
+Use this when credentials come from runtime config (MDM, remote feature flag, A/B routing, …) rather than a bundled file. Always chain `.withAndroidStorage(context)`.
+
+```kotlin
+import cloud.trustpin.kotlin.sdk.TrustPin
+import cloud.trustpin.kotlin.sdk.TrustPinConfiguration
 import cloud.trustpin.kotlin.sdk.TrustPinMode
+import cloud.trustpin.kotlin.sdk.withAndroidStorage
 
-// Configure with your project credentials (suspend function)
-suspend fun initializeTrustPin() {
-    TrustPin.setup(
-        organizationId = "your-org-id",
-        projectId = "your-project-id",
-        publicKey = "your-base64-public-key",
-        mode = TrustPinMode.STRICT  // Recommended
-    )
+suspend fun initializeTrustPin(context: Context, creds: Credentials) {
+    val config = TrustPinConfiguration(
+        organizationId = creds.orgId,
+        projectId      = creds.projectId,
+        publicKey      = creds.publicKey,
+        mode           = TrustPinMode.STRICT,
+    ).withAndroidStorage(context)
+
+    TrustPin.setup(config)
 }
 ```
 
-> 💡 **Find your credentials** in the [TrustPin Dashboard](https://trustpin.cloud/dashboard)
->
-> ⚙️ **Dual API Design**: TrustPin provides both **suspend functions** (recommended for Kotlin coroutines) and **blocking functions** (for Java interop and non-coroutine contexts).
+### ⚠️ Single-use contract for `Context`-decorated configurations
 
-### 2. Choose Your Pinning Mode
+A configuration produced through `fromAssets(context)` or `.withAndroidStorage(context)` **must be passed to exactly one `TrustPin.setup` call.** Reusing the same decorated instance for a second setup silently downgrades the second instance. Build a fresh configuration for each TrustPin instance:
 
-TrustPin offers two validation modes:
-
-#### Strict Mode (Recommended for Production)
 ```kotlin
-suspend fun setupProduction() {
-    TrustPin.setup(
-        // ... your credentials
-        mode = TrustPinMode.STRICT  // Throws error for unregistered domains
-    )
-}
+// ✅ Correct — one decorated configuration per setup.
+TrustPin.instance("payments").setup(TrustPinConfiguration.fromAssets(context))
+TrustPin.instance("analytics").setup(
+    TrustPinConfiguration(orgId, projId, publicKey).withAndroidStorage(context)
+)
+
+// ❌ Wrong — second setup is silently downgraded.
+val shared = TrustPinConfiguration(orgId, projId, publicKey).withAndroidStorage(context)
+TrustPin.default.setup(shared)
+TrustPin.instance("payments").setup(shared)   // degraded!
 ```
 
-#### Permissive Mode (Development & Testing)
+### Fail-closed integration
+
+A common integration mistake is wrapping `setup` in `try { } catch { }` and continuing on failure. The result is an unpinned application whenever the CDN hiccups. **Treat any `TrustPinError` from `setup` as a hard stop.** Pair with `TrustPin.requirePinned()` immediately before constructing any HTTP client that depends on pinning:
+
 ```kotlin
-suspend fun setupDevelopment() {
-    TrustPin.setup(
-        // ... your credentials
-        mode = TrustPinMode.PERMISSIVE  // Allows unregistered domains to bypass pinning
-    )
+try {
+    TrustPin.setup(TrustPinConfiguration.fromAssets(context))
+} catch (e: TrustPinError) {
+    return showRetryUi(e)   // do NOT fall through to an unpinned client
 }
+TrustPin.requirePinned()    // belt-and-suspenders gate
+val client = OkHttpClient.Builder()
+    .sslSocketFactory(TrustPin.makeSSLSocketFactory(), TrustPin.makeTrustManager())
+    .build()
 ```
 
 ---
 
 ## 🛠 Usage Examples
 
-### Dual API Design
-
-TrustPin provides both **suspend** and **blocking** APIs to support different use cases:
-
-```kotlin
-// Suspend API - for Kotlin coroutines (recommended)
-suspend fun setupAndVerify() {
-    // Setup TrustPin configuration
-    TrustPin.setup(
-        organizationId = "your-org-id",
-        projectId = "your-project-id",
-        publicKey = "your-public-key",
-        mode = TrustPinMode.STRICT
-    )
-
-    // Verify certificates
-    val certificate: X509Certificate = // ...
-    TrustPin.verify("api.example.com", certificate)
-}
-
-// Blocking API - for Java interop and non-coroutine contexts
-fun setupBlocking() {
-    // Setup TrustPin configuration
-    TrustPin.setupBlocking(
-        organizationId = "your-org-id",
-        projectId = "your-project-id",
-        publicKey = "your-public-key",
-        mode = TrustPinMode.STRICT
-    )
-
-    // Verify certificates
-    val certificate: X509Certificate = // ...
-    TrustPin.verifyBlocking("api.example.com", certificate)
-}
-```
-
-### OkHttp Integration with SSLSocketFactory
-
-The recommended integration pattern for OkHttp applications:
+### OkHttp
 
 ```kotlin
 import cloud.trustpin.kotlin.sdk.TrustPin
-import cloud.trustpin.kotlin.sdk.TrustPinMode
-import cloud.trustpin.kotlin.sdk.ssl.TrustPinSSLSocketFactory
+import cloud.trustpin.kotlin.sdk.TrustPinConfiguration
+import cloud.trustpin.kotlin.sdk.fromAssets
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import java.util.concurrent.TimeUnit
 
-class NetworkManager {
+class NetworkManager(context: Context) {
 
-    private val httpClient by lazy {
-        val sslSocketFactory = TrustPinSSLSocketFactory.create()
+    suspend fun initialize() {
+        TrustPin.setup(TrustPinConfiguration.fromAssets(context))
+        TrustPin.requirePinned()
+    }
+
+    val httpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
-            .sslSocketFactory(sslSocketFactory, sslSocketFactory.trustManager())
+            .sslSocketFactory(TrustPin.makeSSLSocketFactory(), TrustPin.makeTrustManager())
             .build()
-    }
-
-    suspend fun initialize() {
-        TrustPin.setup(
-            organizationId = "your-org-id",
-            projectId = "your-project-id",
-            publicKey = "your-public-key",
-            mode = TrustPinMode.STRICT
-        )
-    }
-
-    suspend fun fetchData(): String {
-        val request = Request.Builder()
-            .url("https://api.example.com/data")
-            .build()
-
-        return httpClient.newCall(request).execute().use { response ->
-            response.body?.string() ?: ""
-        }
     }
 }
 ```
 
-### Manual Certificate Verification
-
-For custom networking stacks or certificate inspection:
-
-```kotlin
-import cloud.trustpin.kotlin.sdk.TrustPin
-import cloud.trustpin.kotlin.sdk.TrustPinError
-import java.security.cert.X509Certificate
-
-// Verify an X.509 certificate for a specific domain
-suspend fun verifyCertificate() {
-    val domain = "api.example.com"
-    val certificate: X509Certificate = // ... obtained from connection
-
-    try {
-        TrustPin.verify(domain = domain, certificate = certificate)
-        println("✅ Certificate is valid and matches configured pins")
-    } catch (e: TrustPinError.DomainNotRegistered) {
-        println("⚠️ Domain not configured for pinning")
-    } catch (e: TrustPinError.PinsMismatch) {
-        println("❌ Certificate doesn't match any configured pins")
-    } catch (e: TrustPinError) {
-        println("💥 Verification failed: ${e.message}")
-    }
-}
-```
-
----
-
-## 🔧 Android Integration Examples
-
-### Retrofit with OkHttp
+### Retrofit
 
 ```kotlin
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import cloud.trustpin.kotlin.sdk.ssl.TrustPinSSLSocketFactory
-import java.util.concurrent.TimeUnit
 
-class ApiClient {
+class ApiClient(context: Context) {
+
+    suspend fun initialize() {
+        TrustPin.setup(TrustPinConfiguration.fromAssets(context))
+        TrustPin.requirePinned()
+    }
 
     private val okHttpClient by lazy {
-        val sslSocketFactory = TrustPinSSLSocketFactory.create()
         OkHttpClient.Builder()
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .sslSocketFactory(sslSocketFactory, sslSocketFactory.trustManager())
+            .sslSocketFactory(TrustPin.makeSSLSocketFactory(), TrustPin.makeTrustManager())
             .build()
     }
 
-    private val retrofit by lazy {
+    val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl("https://api.example.com/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
-
-    suspend fun initialize() {
-        TrustPin.setup(
-            organizationId = "prod-org-id",
-            projectId = "prod-project-id",
-            publicKey = "prod-public-key",
-            mode = TrustPinMode.STRICT
-        )
-    }
-
-    fun <T> createService(serviceClass: Class<T>): T {
-        return retrofit.create(serviceClass)
-    }
 }
 ```
 
-### Ktor Client Integration
+### Ktor
 
 ```kotlin
-import io.ktor.client.*
-import io.ktor.client.engine.okhttp.*
-import io.ktor.client.request.*
-import cloud.trustpin.kotlin.sdk.ssl.TrustPinSSLSocketFactory
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
 
-class KtorNetworkClient {
+class KtorNetworkClient(context: Context) {
 
-    private val httpClient by lazy {
-        val sslSocketFactory = TrustPinSSLSocketFactory.create()
+    suspend fun initialize() {
+        TrustPin.setup(TrustPinConfiguration.fromAssets(context))
+        TrustPin.requirePinned()
+    }
+
+    val httpClient by lazy {
         HttpClient(OkHttp) {
             engine {
                 preconfigured = OkHttpClient.Builder()
-                    .sslSocketFactory(sslSocketFactory, sslSocketFactory.trustManager())
+                    .sslSocketFactory(TrustPin.makeSSLSocketFactory(), TrustPin.makeTrustManager())
                     .build()
             }
         }
     }
+}
+```
 
-    suspend fun initialize() {
-        TrustPin.setup(
-            organizationId = "your-org-id",
-            projectId = "your-project-id",
-            publicKey = "your-public-key",
-            mode = TrustPinMode.STRICT
-        )
-    }
+### Manual certificate verification
 
-    suspend fun fetchData(): String {
-        return httpClient.get("https://api.example.com/data")
+For custom networking stacks or one-off certificate inspection:
+
+```kotlin
+import cloud.trustpin.kotlin.sdk.TrustPin
+import cloud.trustpin.kotlin.sdk.TrustPinError
+import java.security.cert.X509Certificate
+
+suspend fun verifyCertificate(domain: String, certificate: X509Certificate) {
+    try {
+        TrustPin.verify(domain, certificate)
+    } catch (e: TrustPinError.DomainNotRegistered) {
+        // strict mode only
+    } catch (e: TrustPinError.PinsMismatch) {
+        // possible MITM
+    } catch (e: TrustPinError) {
+        // other verification failure
     }
 }
 ```
 
+### Multi-instance usage
+
+Libraries or multi-tenant apps can create isolated pinning contexts:
+
+```kotlin
+val payments = TrustPin.instance("payments")
+payments.setup(
+    TrustPinConfiguration(orgId = "payments-org", projectId = "payments-api", publicKey = "...")
+        .withAndroidStorage(context)
+)
+
+val analytics = TrustPin.instance("analytics")
+analytics.setup(
+    TrustPinConfiguration(orgId = "analytics-org", projectId = "analytics-api", publicKey = "...")
+        .withAndroidStorage(context)
+)
+```
+
+Each instance has its own state and log output tagged with the instance id. `fromAssets(context)` always applies to `TrustPin.default`; named instances use the programmatic path.
+
 ---
 
-## 🎯 Pinning Modes Explained
+## 🎯 Pinning Modes
 
-| Mode | Behavior | Use Case |
+| Mode | Behavior | Use case |
 |------|----------|----------|
-| **`TrustPinMode.STRICT`** | ❌ Throws `TrustPinError.DomainNotRegistered` for unregistered domains | **Production environments** where all connections should be validated |
-| **`TrustPinMode.PERMISSIVE`** | ✅ Allows unregistered domains to bypass pinning | **Development/Testing** or apps connecting to dynamic domains |
+| `TrustPinMode.STRICT` | Throws `TrustPinError.DomainNotRegistered` for unregistered domains | **Production** — all connections must be validated |
+| `TrustPinMode.PERMISSIVE` | Allows unregistered domains to bypass pinning | **Development / testing**, or apps with dynamic endpoints |
 
-### When to Use Each Mode
+Set it via the configuration:
 
-#### Strict Mode (`TrustPinMode.STRICT`)
-- ✅ **Production applications**
-- ✅ **High-security environments**
-- ✅ **Known, fixed set of API endpoints**
-- ✅ **Compliance requirements**
+```kotlin
+TrustPinConfiguration(orgId, projId, publicKey, mode = TrustPinMode.STRICT)
+```
 
-#### Permissive Mode (`TrustPinMode.PERMISSIVE`)
-- ✅ **Development and staging**
-- ✅ **Applications with dynamic/unknown endpoints**
-- ✅ **Gradual migration to certificate pinning**
-- ✅ **Third-party SDK integrations**
+Or in `trustpin.json`:
+
+```json
+{ "organization_id": "...", "project_id": "...", "public_key": "...", "mode": "strict" }
+```
 
 ---
 
 ## 📊 Error Handling
 
-TrustPin provides detailed error types for proper handling:
+All errors are subtypes of the sealed class `TrustPinError`. Catch the supertype for blanket handling, or specific cases when you can recover differently:
 
 ```kotlin
 import cloud.trustpin.kotlin.sdk.TrustPinError
 
 try {
-    TrustPin.verify(domain = "api.example.com", certificate = cert)
+    TrustPin.verify("api.example.com", cert)
 } catch (e: TrustPinError.DomainNotRegistered) {
-    // Domain not configured in TrustPin (only in strict mode)
-    handleUnregisteredDomain()
+    // strict mode only
 } catch (e: TrustPinError.PinsMismatch) {
-    // Certificate doesn't match configured pins - possible MITM
-    handleSecurityThreat()
+    // possible MITM — never proceed
 } catch (e: TrustPinError.AllPinsExpired) {
-    // All pins for domain have expired
-    handleExpiredPins()
+    // all pins for the domain expired — refresh or fail
 } catch (e: TrustPinError.InvalidServerCert) {
-    // Certificate format is invalid
-    handleInvalidCertificate()
-} catch (e: TrustPinError.InvalidProjectConfig) {
-    // Setup parameters are invalid
-    handleConfigurationError()
-} catch (e: TrustPinError.ErrorFetchingPinningInfo) {
-    // Network error fetching configuration
-    handleNetworkError()
-} catch (e: TrustPinError.ConfigurationValidationFailed) {
-    // Configuration signature validation failed
-    handleSignatureError()
+    // certificate is not a usable X.509
+} catch (e: TrustPinError) {
+    // setup / network / integrity / timeout — see below
 }
 ```
+
+### Error reference
+
+| Error | Raised by | Meaning |
+|---|---|---|
+| `InvalidProjectConfig` | `setup` | Credentials missing or malformed; on Android, `trustpin.json` missing/unreadable |
+| `ErrorFetchingPinningInfo` | `setup` | Configuration could not be fetched from the CDN |
+| `ConfigurationValidationFailed` | `setup` | Configuration signature did not verify |
+| `ConfigIntegrityError` | `setup` | Configuration failed the SDK's integrity check |
+| `SetupInProgress` | `setup` / `verify` / `requirePinned` | Another `setup` call is in flight |
+| `LockTimeout` | `setup` / `verify` | Internal lock could not be acquired |
+| `NotInitialized` | `verify` / `requirePinned` | `setup` has not completed successfully |
+| `PinsMismatch` | `verify` | Certificate does not match any configured pin |
+| `AllPinsExpired` | `verify` | All pins for the domain have expired |
+| `DomainNotRegistered` | `verify` | Domain not configured (strict mode only) |
+| `InvalidServerCert` | `verify` / `fetchCertificate` | Certificate is not a usable X.509 / TLS handshake failed |
+| `Timeout` | `verify` / `fetchCertificate` | Operation deadline elapsed |
+| `SSLContextSetupFailed` | `makeSSLSocketFactory` / `makeTrustManager` | Platform TLS stack could not be configured |
+| `UnsupportedDevice` | `makeSSLSocketFactory` / `makeTrustManager` | Runtime is not a production-shaped OEM-signed Android image (emulator without debug opt-in, AOSP self-build, `test-keys`, etc.) |
 
 ---
 
 ## 🔍 Logging and Debugging
 
-TrustPin provides comprehensive logging for debugging and monitoring:
-
 ```kotlin
+import cloud.trustpin.kotlin.sdk.TrustPin
 import cloud.trustpin.kotlin.sdk.TrustPinLogLevel
 
-// Set log level before setup
+// Set log level before setup for complete coverage.
 TrustPin.setLogLevel(TrustPinLogLevel.DEBUG)
-
-// Available log levels:
-// TrustPinLogLevel.NONE   - No logging
-// TrustPinLogLevel.ERROR  - Errors only
-// TrustPinLogLevel.INFO   - Errors and informational messages
-// TrustPinLogLevel.DEBUG  - All messages including debug information
 ```
 
-### Example Debug Output
+| Level | Output |
+|---|---|
+| `NONE` | No logging |
+| `ERROR` | Errors only |
+| `INFO` | Errors and informational messages |
+| `DEBUG` | All messages, including debug detail |
+
+**Production guidance:** use `ERROR` or `NONE`. `DEBUG` is for development and incident response only.
+
+Example debug output:
 
 ```
 [14:30:15] [DEBUG] Starting certificate verification for domain: api.example.com
-[14:30:15] [DEBUG] Sanitized domain: api.example.com
-[14:30:15] [INFO] Using cached configuration
+[14:30:15] [INFO]  Using cached configuration
 [14:30:15] [DEBUG] Found domain configuration with 2 pins
 [14:30:15] [DEBUG] Certificate hash matches sha256 pin for domain api.example.com
-[14:30:15] [INFO] Valid pin found for api.example.com
+[14:30:15] [INFO]  Valid pin found for api.example.com
 ```
 
 ---
 
 ## 🏗 Best Practices
 
-### Setup and Initialization
+### Setup and initialization
 
-1. **Call `TrustPin.setup()` once** during app initialization (typically in `Application.onCreate()`)
-2. **Handle setup errors gracefully** - don't block app launch if TrustPin fails
-3. **Set log level before setup** for complete logging coverage
-4. **Use coroutines** for setup in Android lifecycle-aware components
+1. Call `TrustPin.setup` **once** during app startup (typically in `Application.onCreate`).
+2. On Android, **always** use `fromAssets(context)` or `.withAndroidStorage(context)`.
+3. Treat any `TrustPinError` from `setup` as a hard stop — never fall through to an unpinned HTTP client.
+4. Pair `setup` with `TrustPin.requirePinned()` immediately before building any pinned HTTP client.
+5. Set the log level **before** `setup` for full logging coverage.
 
-### Security Recommendations
+### Security
 
-1. **Always use `TrustPinMode.STRICT` in production**
-2. **Rotate pins before expiration**
-3. **Monitor pin validation failures**
-4. **Use HTTPS for all pinned domains**
-5. **Keep public keys secure and version-controlled**
+1. Use `TrustPinMode.STRICT` in production.
+2. Rotate pins before expiration; the SDK falls back to the most-recent valid cached configuration but cannot extend expired pins.
+3. Keep `trustpin.json` in version control alongside your app source.
+4. Monitor pin validation failures via your logging pipeline.
 
-### Performance Optimization
+### Performance
 
-1. **Cache TrustPin configuration** (handled automatically)
-2. **Reuse OkHttpClient instances** with TrustPin SSLSocketFactory
-3. **Use appropriate log levels** (`ERROR` or `NONE` in production)
-4. **Initialize early** to avoid setup delays during first network requests
-
-### Development Workflow
-
-1. **Start with `TrustPinMode.PERMISSIVE`** during development
-2. **Test all endpoints** with pinning enabled
-3. **Validate pin configurations** in staging
-4. **Switch to `TrustPinMode.STRICT`** for production releases
-5. **Use debug logging** to troubleshoot pinning issues
-
----
-
-## 🔄 Choosing the Right API
-
-TrustPin provides two API styles to fit different development contexts:
-
-### API Selection Guide
-
-**Suspend API (Recommended for Kotlin):**
-```kotlin
-// ✅ For Kotlin coroutine contexts
-suspend fun initialize() {
-    TrustPin.setup(
-        organizationId = "your-org-id",
-        projectId = "your-project-id",
-        publicKey = "your-public-key",
-        mode = TrustPinMode.STRICT
-    )
-}
-```
-
-**Blocking API (For Java and Non-Coroutine Contexts):**
-```kotlin
-// ✅ For Java interop and blocking Kotlin contexts
-fun initialize() {
-    TrustPin.setupBlocking(
-        organizationId = "your-org-id",
-        projectId = "your-project-id",
-        publicKey = "your-public-key",
-        mode = TrustPinMode.STRICT
-    )
-}
-```
+1. Configuration caching is automatic (10 min, with stale fallback).
+2. Reuse the OkHttp client — do not build one per request.
+3. Use `ERROR` or `NONE` log level in production.
 
 ---
 
 ## 🧪 Testing
-
-### Unit Testing with TrustPin
 
 ```kotlin
 import kotlinx.coroutines.test.runTest
@@ -483,66 +438,81 @@ import org.junit.Test
 class NetworkTest {
 
     @Test
-    fun `test secure network request`() = runTest {
-        // Use permissive mode for testing
+    fun `verifies test endpoint`() = runTest {
         TrustPin.setup(
-            organizationId = "test-org",
-            projectId = "test-project",
-            publicKey = "test-key",
-            mode = TrustPinMode.PERMISSIVE
+            TrustPinConfiguration(
+                organizationId = "test-org",
+                projectId      = "test-project",
+                publicKey      = "test-key",
+                mode           = TrustPinMode.PERMISSIVE,  // tests only
+            )
         )
 
-        val networkClient = SecureNetworkClient()
-        val result = networkClient.fetchData()
+        val client = SecureNetworkClient()
+        val result = client.fetchData()
 
         assert(result.isNotEmpty())
     }
 }
 ```
 
+For instrumented Android tests use `fromAssets(context)` against a dedicated `src/androidTest/assets/trustpin.json`.
+
 ---
 
 ## 🐛 Troubleshooting
 
-### Common Issues
+### `setup` throws `InvalidProjectConfig`
 
-#### **Setup Fails with `InvalidProjectConfig`**
-- ✅ Verify organization ID, project ID, and public key are correct
-- ✅ Check for extra whitespace or newlines in credentials
-- ✅ Ensure public key is properly base64-encoded
+- Verify `organization_id`, `project_id`, and `public_key`.
+- Check for whitespace or newlines around the values.
+- Ensure `public_key` is properly base64-encoded.
+- On Android with `fromAssets`: confirm `trustpin.json` is in `src/main/assets/` of the **application** module (not a library module), and that it isn't being excluded by asset filters.
 
-#### **Certificate Verification Fails**
-- ✅ Confirm domain is registered in TrustPin dashboard
-- ✅ Check certificate format (must be valid X.509)
-- ✅ Verify pins haven't expired
-- ✅ Test with `TrustPinMode.PERMISSIVE` first
+### `setup` throws `ConfigIntegrityError`
 
-#### **OkHttp Integration Issues**
-- ✅ Ensure TrustPin is initialized before creating OkHttpClient
-- ✅ Use `TrustPinSSLSocketFactory.create()` with OkHttp's `sslSocketFactory()` method
-- ✅ Always pass both SSLSocketFactory and TrustManager to OkHttp
-- ✅ Verify coroutine context for suspend functions
+The downloaded configuration failed the SDK's integrity check. Re-issue credentials in the TrustPin dashboard and check for a misconfigured `configuration_url`.
 
-### Debug Steps
+### `makeSSLSocketFactory` throws `UnsupportedDevice`
 
-1. **Enable debug logging**: `TrustPin.setLogLevel(TrustPinLogLevel.DEBUG)`
-2. **Test with permissive mode** first
-3. **Verify credentials** in TrustPin dashboard
-4. **Check network connectivity** to `cdn.trustpin.cloud`
-5. **Inspect certificate details** with openssl or browser tools
+The SDK refuses to operate on emulators / AOSP builds / `test-keys`-signed images by default. For development:
+
+- Use a production-shaped device or a Play Store-signed emulator image.
+- Or catch `TrustPinError.UnsupportedDevice` and degrade gracefully in non-production builds.
+
+### Certificate verification fails
+
+- Confirm the domain is registered in the [TrustPin Dashboard](https://trustpin.cloud/dashboard).
+- Check the certificate is a valid X.509 leaf.
+- Verify pins have not expired.
+- Re-test with `TrustPinMode.PERMISSIVE` to isolate whether the domain or the pin is at fault.
+
+### OkHttp integration issues
+
+- Initialize TrustPin **before** building the `OkHttpClient`.
+- Always pass both `SSLSocketFactory` and `X509TrustManager` to `sslSocketFactory(...)`.
+- Verify the OkHttp client is reused across requests, not rebuilt.
+
+### Debug checklist
+
+1. `TrustPin.setLogLevel(TrustPinLogLevel.DEBUG)` before `setup`.
+2. Test with `TrustPinMode.PERMISSIVE` to isolate domain registration from pin validation.
+3. Verify credentials in the TrustPin Dashboard.
+4. Check connectivity to `cdn.trustpin.cloud`.
 
 ---
 
 ## 📖 Documentation
 
 - **API Reference**: [Full KDoc Documentation](index.html)
-- **Documentation site**: [Documentation site](https://docs.trustpin.cloud)
-- **TrustPin Dashboard**: [Configure domains and pins](https://trustpin.cloud/dashboard)
+- **Documentation site**: [docs.trustpin.cloud](https://docs.trustpin.cloud)
+- **TrustPin Dashboard**: [trustpin.cloud/dashboard](https://trustpin.cloud/dashboard)
+
 ---
 
 ## 📝 License
 
-**Commercial License**: For enterprise licensing or custom agreements, contact [contact@trustpin.cloud](mailto:contact@trustpin.cloud)
+**Commercial License**: For enterprise licensing or custom agreements, contact [contact@trustpin.cloud](mailto:contact@trustpin.cloud).
 
 **Attribution Required**: When using this software, you must display "Uses TrustPin™ technology – https://trustpin.cloud" in your application.
 
@@ -550,12 +520,8 @@ class NetworkTest {
 
 ## 🤝 Support & Feedback
 
-For questions and support:
-
 - 📧 **Email**: [support@trustpin.cloud](mailto:support@trustpin.cloud)
 - 🌐 **Website**: [https://trustpin.cloud](https://trustpin.cloud)
 - 📋 **Issues**: For SDK-related issues, please contact support
 
 ---
-
-*Built with ❤️ by the TrustPin team*
