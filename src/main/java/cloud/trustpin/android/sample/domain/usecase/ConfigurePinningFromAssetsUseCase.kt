@@ -1,6 +1,5 @@
 package cloud.trustpin.android.sample.domain.usecase
 
-import android.content.Context
 import cloud.trustpin.android.sample.domain.model.DomainError
 import cloud.trustpin.android.sample.domain.model.PinningCredentials
 import cloud.trustpin.android.sample.domain.repository.Logger
@@ -17,7 +16,7 @@ class ConfigurePinningFromAssetsUseCase(
     private val logger: Logger,
 ) {
 
-    suspend operator fun invoke(context: Context): PinningCredentials {
+    suspend operator fun invoke(): PinningCredentials {
         if (configurationRepository.isConfigured()) {
             logger.warning("Setup attempt ignored: TrustPin already configured")
             throw DomainError.Validation("TrustPin is already configured")
@@ -26,7 +25,7 @@ class ConfigurePinningFromAssetsUseCase(
         logger.info("Loading TrustPin configuration from assets/trustpin.json...")
 
         return try {
-            val credentials = configurationRepository.configureFromAssets(context)
+            val credentials = configurationRepository.configureFromAssets()
             logger.success("TrustPin configured from trustpin.json")
             credentials
         } catch (e: DomainError) {

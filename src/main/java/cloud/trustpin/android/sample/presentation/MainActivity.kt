@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private val viewModel by viewModels<MainViewModel> {
-        MainViewModelFactory(application, (application as SampleApplication).locator)
+        MainViewModelFactory((application as SampleApplication).locator)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

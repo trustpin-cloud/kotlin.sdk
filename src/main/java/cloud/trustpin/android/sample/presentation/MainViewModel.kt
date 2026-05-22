@@ -1,7 +1,6 @@
 package cloud.trustpin.android.sample.presentation
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cloud.trustpin.android.sample.domain.model.DomainError
 import cloud.trustpin.android.sample.domain.model.PinningCredentials
@@ -27,13 +26,12 @@ import kotlinx.coroutines.launch
  * feed declarative on the activity side (one render of `state.logEntries`).
  */
 class MainViewModel(
-    application: Application,
     private val configurationRepository: ConfigurationRepository,
     private val configurePinning: (logger: UiLogSink) -> ConfigurePinningUseCase,
     private val configureFromAssets: (logger: UiLogSink) -> ConfigurePinningFromAssetsUseCase,
     private val testConnection: (logger: UiLogSink) -> TestPinnedConnectionUseCase,
     private val fetchCertificate: (logger: UiLogSink) -> FetchCertificateUseCase,
-) : AndroidViewModel(application) {
+) : ViewModel() {
 
     private val _state = MutableStateFlow(UiState.Initial)
     val state: StateFlow<UiState> = _state.asStateFlow()
@@ -95,7 +93,7 @@ class MainViewModel(
         viewModelScope.launch {
             _state.update { it.copy(isWorking = true) }
             try {
-                configureFromAssets(logSink).invoke(getApplication())
+                configureFromAssets(logSink).invoke()
                 _state.update {
                     it.copy(
                         isConfigured = true,

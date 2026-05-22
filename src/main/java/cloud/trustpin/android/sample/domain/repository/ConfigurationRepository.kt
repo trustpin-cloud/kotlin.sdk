@@ -1,12 +1,15 @@
 package cloud.trustpin.android.sample.domain.repository
 
-import android.content.Context
 import cloud.trustpin.android.sample.domain.model.PinningCredentials
 
 /**
  * Boundary between the use-case layer and the TrustPin SDK's configuration
  * surface. Implementations are responsible for translating SDK exceptions
  * into [cloud.trustpin.android.sample.domain.model.DomainError].
+ *
+ * The Android implementation holds the application `Context` as a
+ * constructor dependency (see `TrustPinConfigurationRepository`), so use
+ * cases and view-models do not need to pass it through every call.
  */
 interface ConfigurationRepository {
 
@@ -21,5 +24,5 @@ interface ConfigurationRepository {
      * loaded [PinningCredentials] so the caller can echo non-sensitive fields
      * (org id, project id, mode) into its log feed.
      */
-    suspend fun configureFromAssets(context: Context): PinningCredentials
+    suspend fun configureFromAssets(): PinningCredentials
 }

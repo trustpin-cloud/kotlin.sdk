@@ -1,6 +1,5 @@
 package cloud.trustpin.android.sample.presentation
 
-import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import cloud.trustpin.android.sample.ServiceLocator
@@ -11,7 +10,6 @@ import cloud.trustpin.android.sample.ServiceLocator
  * activity ignorant of construction.
  */
 class MainViewModelFactory(
-    private val application: Application,
     private val locator: ServiceLocator,
 ) : ViewModelProvider.Factory {
 
@@ -21,7 +19,6 @@ class MainViewModelFactory(
             "Unknown ViewModel class: ${modelClass.name}"
         }
         return MainViewModel(
-            application = application,
             configurationRepository = locator.configurationRepository,
             configurePinning = { logger -> locator.configurePinningUseCase(logger) },
             configureFromAssets = { logger -> locator.configurePinningFromAssetsUseCase(logger) },

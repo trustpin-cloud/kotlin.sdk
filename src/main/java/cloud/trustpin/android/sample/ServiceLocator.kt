@@ -1,5 +1,6 @@
 package cloud.trustpin.android.sample
 
+import android.content.Context
 import cloud.trustpin.android.sample.data.repository.OkHttpNetworkRepository
 import cloud.trustpin.android.sample.data.repository.TrustPinCertificateRepository
 import cloud.trustpin.android.sample.data.repository.TrustPinConfigurationRepository
@@ -17,10 +18,16 @@ import cloud.trustpin.android.sample.domain.usecase.TestPinnedConnectionUseCase
  * to wire concrete repositories, one factory per use case so each invocation
  * can take a request-scoped [Logger]. A real app would replace this with
  * Hilt/Koin/etc.
+ *
+ * Constructed once in [SampleApplication.onCreate] with the process's
+ * [Application] context, which is held by repositories that need it (e.g.
+ * `TrustPinConfigurationRepository` chains `withAndroidStorage(applicationContext)`
+ * to attach the SDK's persistent integrity-check storage).
  */
-class ServiceLocator {
+class ServiceLocator(applicationContext: Context) {
 
-    val configurationRepository: ConfigurationRepository = TrustPinConfigurationRepository()
+    val configurationRepository: ConfigurationRepository =
+        TrustPinConfigurationRepository(applicationContext)
     val networkRepository: NetworkRepository = OkHttpNetworkRepository()
     val certificateRepository: CertificateRepository = TrustPinCertificateRepository()
 

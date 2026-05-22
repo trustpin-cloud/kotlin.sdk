@@ -17,6 +17,6 @@ class SampleApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         TrustPin.default.setLogLevel(TrustPinLogLevel.INFO)
-        locator = ServiceLocator()
+        locator = ServiceLocator(applicationContext)
     }
 }
