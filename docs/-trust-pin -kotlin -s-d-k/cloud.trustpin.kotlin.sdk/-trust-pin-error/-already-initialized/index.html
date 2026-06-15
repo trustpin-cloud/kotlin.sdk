@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
-    <title>SetupInProgress</title>
+    <title>AlreadyInitialized</title>
     <link href="../../../../images/logo-icon.svg" rel="icon" type="image/svg">
         <script>var pathToRoot = "../../../../";</script>
     <script>document.documentElement.classList.replace("no-js", "js");</script>
@@ -104,11 +104,11 @@
         </nav>
         <div id="resizer" class="resizer" data-item-type="BAR"></div>
         <div id="main" data-item-type="SECTION" role="main">
-<div class="main-content" data-page-type="classlike" id="content" pageIds="TrustPin Kotlin SDK::cloud.trustpin.kotlin.sdk/TrustPinError.SetupInProgress///PointingToDeclaration//-251573632">
-  <div class="breadcrumbs"><a href="../../../../index.html">TrustPin Kotlin SDK</a><span class="delimiter">/</span><a href="../../index.html">cloud.trustpin.kotlin.sdk</a><span class="delimiter">/</span><a href="../index.html">TrustPinError</a><span class="delimiter">/</span><span class="current">SetupInProgress</span></div>
+<div class="main-content" data-page-type="classlike" id="content" pageIds="TrustPin Kotlin SDK::cloud.trustpin.kotlin.sdk/TrustPinError.AlreadyInitialized///PointingToDeclaration//-251573632">
+  <div class="breadcrumbs"><a href="../../../../index.html">TrustPin Kotlin SDK</a><span class="delimiter">/</span><a href="../../index.html">cloud.trustpin.kotlin.sdk</a><span class="delimiter">/</span><a href="../index.html">TrustPinError</a><span class="delimiter">/</span><span class="current">AlreadyInitialized</span></div>
   <div class="cover ">
-    <h1 class="cover"><span>Setup</span><wbr></wbr><span>In</span><wbr></wbr><span><span>Progress</span></span></h1>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="index.html">SetupInProgress</a> : <a href="../index.html">TrustPinError</a></div><p class="paragraph">Another <a href="../../-trust-pin/setup.html">TrustPin.setup</a> call is already in flight on this instance.</p><p class="paragraph">Distinct from <a href="../-invalid-project-config/index.html">InvalidProjectConfig</a>: the credentials may be correct. Wait for the in-flight setup to finish, or retry after a brief delay.</p><h4 class="tableheader">See also</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":/main" data-filterable-set=":/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../-trust-pin/setup.html"><span>TrustPin.</span><wbr></wbr><span>setup</span></a></div></span></div><div></div></div></div></div></div></div>
+    <h1 class="cover"><span>Already</span><wbr></wbr><span><span>Initialized</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="index.html">AlreadyInitialized</a> : <a href="../index.html">TrustPinError</a></div><p class="paragraph"><a href="../../-trust-pin/setup.html">TrustPin.setup</a> was called on an instance that has already completed setup successfully.</p><p class="paragraph">Reconfiguration is not supported: an instance's credentials and mode are fixed for its lifetime. Use a separate named instance via <a href="../../-trust-pin/-companion/instance.html">TrustPin.instance</a> for a different pinning context. Treat this error as a programming bug at the call site, not a runtime condition to retry.</p><h4 class="tableheader">See also</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":/main" data-filterable-set=":/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../-trust-pin/setup.html"><span>TrustPin.</span><wbr></wbr><span>setup</span></a></div></span></div><div></div></div></div></div></div></div>
   </div>
   <div class="tabbedcontent">
     <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>

@@ -67,7 +67,7 @@ JVM customers should request access to the hardened JVM JAR via email at [suppor
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:5.0.0")
+    implementation("cloud.trustpin:kotlin-sdk:6.0.0")
 }
 ```
 
@@ -75,7 +75,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'cloud.trustpin:kotlin-sdk:5.0.0'
+    implementation 'cloud.trustpin:kotlin-sdk:6.0.0'
 }
 ```
 
@@ -434,28 +434,21 @@ Set the log level before `setup` for complete logging coverage. Use `ERROR` or `
 ### Setup
 - Call `TrustPin.setup()` exactly once at app launch.
 - Treat setup errors as hard stops — don't continue to construct an unpinned `OkHttpClient`.
-- Use `requirePinned()` as a guard before any pinned network operation.
+- Gate on `awaitConfiguration(timeout)` before constructing pinned clients when your app must not run without a validated payload.
 
 ### Development workflow
 - Start in `TrustPinMode.PERMISSIVE` during development; switch to `STRICT` for production.
 - Use `DEBUG` log level when troubleshooting; revert to `ERROR` or `NONE` for release builds.
+- On Android, release builds run only on stock production devices; use debug-built variants for development, CI, and emulators. If you need a release-shaped APK on an emulator for QA, declare a non-`release` buildType with `isDebuggable = true` (e.g. a `releaseStaging` variant). Never upload a debuggable APK to Play.
+- To support end users on community or custom OS builds — where release builds would otherwise fail with `TrustPinError.UnsupportedDevice` — declare the following inside `<application>` in your manifest:
 
-### Runtime defenses (Android)
+  ```xml
+  <meta-data
+      android:name="cloud.trustpin.android.allowNonOemImages"
+      android:value="true" />
+  ```
 
-TrustPin enforces a lightweight production-shape device gate on Android release builds. The check refuses to initialise on environments that aren't OEM-signed production user builds — non-`user` build types, `test-keys`-signed images, missing or `unknown` `MANUFACTURER`, and standard emulator markers.
-
-Debug-built host apps (debug variants produced by AGP — `android:debuggable="true"` in the merged manifest) skip the gate automatically, so local dev and CI on emulators work without configuration.
-
-The gate is intentionally light and structural. **It is not a substitute for a RASP product.** TrustPin does not detect root, MagiskHide, bootloader-unlock state, or runtime instrumentation. Those checks belong in a dedicated RASP layer integrated by the host application.
-
-If your threat model includes those attack classes, layer a RASP alongside TrustPin and ensure it provides **both**:
-
-- **Root / bootloader / device-tamper detection** — `su`, Magisk modules, custom recoveries, unlocked-bootloader state, system-image tampering.
-- **Runtime hook detection and prevention** — Frida (server probes, named-pipe checks, library scans of `/proc/self/maps`), Xposed / LSPosed (module enumeration, classloader inspection), inline-hook detection on ART, code-integrity checks on critical native libraries.
-
-A RASP that only does root detection is insufficient — the in-process hook surface (Frida attaching at runtime to a non-rooted device, malicious dependency loaded by the host) is the more realistic attack path for a pinning-bypass attempt, and it requires active hook detection rather than just a one-shot root scan at startup.
-
-If you need to run a release-shaped APK (minified, release-keys) on an emulator for performance or QA work, declare a non-`release` buildType with `isDebuggable = true` in your app's Gradle config — for example a `releaseStaging` variant alongside `release`. Never upload a debuggable APK to Play.
+  This is a deliberate availability trade-off: it relaxes the SDK's default device policy for production installs so such devices are supported. Emulators remain unsupported for release builds regardless of this opt-out.
 
 ---
 
@@ -479,7 +472,14 @@ class TrustPin {
     // ── Suspend API (recommended for Kotlin) ──────────────────────────────
 
     suspend fun setup(configuration: TrustPinConfiguration)
-    fun requirePinned()
+
+    // Fail-closed gate: waits for the configuration to be fetched, signature-
+    // verified, and accepted by the SDK's integrity check.
+    suspend fun awaitConfiguration(timeout: Long = 30_000)
+    fun awaitConfigurationBlocking(timeout: Long = 30_000)
+
+    // Synchronous payload-state read — never triggers a fetch.
+    val isConfigurationLoaded: Boolean
 
     suspend fun verify(domain: String,
                        certificate: X509Certificate,

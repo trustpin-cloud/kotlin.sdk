@@ -44,7 +44,7 @@
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:5.0.0")
+    implementation("cloud.trustpin:kotlin-sdk:6.0.0")
 }
 ```
 
@@ -52,7 +52,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'cloud.trustpin:kotlin-sdk:5.0.0'
+    implementation 'cloud.trustpin:kotlin-sdk:6.0.0'
 }
 ```
 
@@ -62,7 +62,7 @@ dependencies {
 <dependency>
     <groupId>cloud.trustpin</groupId>
     <artifactId>kotlin-sdk</artifactId>
-    <version>5.0.0</version>
+    <version>6.0.0</version>
 </dependency>
 ```
 
@@ -77,7 +77,7 @@ dependencies {
 | **A** — credentials bundled with the app | `TrustPinConfiguration.fromAssets(context)` | A `trustpin.json` in `src/main/assets/` |
 | **B** — credentials supplied at runtime | `TrustPinConfiguration(...).withAndroidStorage(context)` | Kotlin code |
 
-> ⚠️ **On Android, always use one of the two `Context`-aware paths.** Constructing a bare `TrustPinConfiguration` still works, but the SDK logs an `info` message and the instance runs with a degraded security profile (no anti-rollback storage, no integrity check). Treat it as a misconfiguration, not a feature.
+> ⚠️ **On Android, always use one of the two `Context`-aware paths.** Constructing a bare `TrustPinConfiguration` still works, but the instance runs with a weakened security profile. Treat it as a misconfiguration, not a feature.
 
 ### Path A — Bundled JSON (Android, recommended)
 
@@ -167,15 +167,15 @@ TrustPin.instance("payments").setup(shared)   // degraded!
 
 ### Fail-closed integration
 
-A common integration mistake is wrapping `setup` in `try { } catch { }` and continuing on failure. The result is an unpinned application whenever the CDN hiccups. **Treat any `TrustPinError` from `setup` as a hard stop.** Pair with `TrustPin.requirePinned()` immediately before constructing any HTTP client that depends on pinning:
+`setup` performs local validation only and starts a *background* fetch of the pinning configuration — it never blocks app launch on the network. If your app must not start networking without a validated payload, gate on `TrustPin.awaitConfiguration(timeout)` and **treat any `TrustPinError` as a hard stop** — do not continue on failure with an unpinned client:
 
 ```kotlin
 try {
-    TrustPin.setup(TrustPinConfiguration.fromAssets(context))
+    TrustPin.setup(TrustPinConfiguration.fromAssets(context)) // local validation only
+    TrustPin.awaitConfiguration(timeout = 10_000)             // fail-closed gate
 } catch (e: TrustPinError) {
     return showRetryUi(e)   // do NOT fall through to an unpinned client
 }
-TrustPin.requirePinned()    // belt-and-suspenders gate
 val client = OkHttpClient.Builder()
     .sslSocketFactory(TrustPin.makeSSLSocketFactory(), TrustPin.makeTrustManager())
     .build()
@@ -198,7 +198,7 @@ class NetworkManager(context: Context) {
 
     suspend fun initialize() {
         TrustPin.setup(TrustPinConfiguration.fromAssets(context))
-        TrustPin.requirePinned()
+        TrustPin.awaitConfiguration()
     }
 
     val httpClient: OkHttpClient by lazy {
@@ -221,7 +221,7 @@ class ApiClient(context: Context) {
 
     suspend fun initialize() {
         TrustPin.setup(TrustPinConfiguration.fromAssets(context))
-        TrustPin.requirePinned()
+        TrustPin.awaitConfiguration()
     }
 
     private val okHttpClient by lazy {
@@ -250,7 +250,7 @@ class KtorNetworkClient(context: Context) {
 
     suspend fun initialize() {
         TrustPin.setup(TrustPinConfiguration.fromAssets(context))
-        TrustPin.requirePinned()
+        TrustPin.awaitConfiguration()
     }
 
     val httpClient by lazy {
@@ -357,19 +357,20 @@ try {
 | Error | Raised by | Meaning |
 |---|---|---|
 | `InvalidProjectConfig` | `setup` | Credentials missing or malformed; on Android, `trustpin.json` missing/unreadable |
-| `ErrorFetchingPinningInfo` | `setup` | Configuration could not be fetched from the CDN |
-| `ConfigurationValidationFailed` | `setup` | Configuration signature did not verify |
-| `ConfigIntegrityError` | `setup` | Configuration failed the SDK's integrity check |
-| `SetupInProgress` | `setup` / `verify` / `requirePinned` | Another `setup` call is in flight |
+| `AlreadyInitialized` | `setup` | Instance already completed setup — reconfiguration is not supported; use a named instance |
+| `ErrorFetchingPinningInfo` | `awaitConfiguration` / `verify` | Configuration could not be fetched from the CDN |
+| `ConfigurationValidationFailed` | `awaitConfiguration` / `verify` | Configuration signature did not verify |
+| `ConfigIntegrityError` | `awaitConfiguration` / `verify` | Configuration failed the SDK's integrity check |
+| `SetupInProgress` | `setup` / `verify` / `awaitConfiguration` | Another `setup` call is in flight |
 | `LockTimeout` | `setup` / `verify` | Internal lock could not be acquired |
-| `NotInitialized` | `verify` / `requirePinned` | `setup` has not completed successfully |
+| `NotInitialized` | `verify` / `awaitConfiguration` | `setup` has not completed successfully |
 | `PinsMismatch` | `verify` | Certificate does not match any configured pin |
 | `AllPinsExpired` | `verify` | All pins for the domain have expired |
 | `DomainNotRegistered` | `verify` | Domain not configured (strict mode only) |
 | `InvalidServerCert` | `verify` / `fetchCertificate` | Certificate is not a usable X.509 / TLS handshake failed |
 | `Timeout` | `verify` / `fetchCertificate` | Operation deadline elapsed |
 | `SSLContextSetupFailed` | `makeSSLSocketFactory` / `makeTrustManager` | Platform TLS stack could not be configured |
-| `UnsupportedDevice` | `makeSSLSocketFactory` / `makeTrustManager` | Runtime is not a production-shaped OEM-signed Android image (emulator without debug opt-in, AOSP self-build, `test-keys`, etc.) |
+| `UnsupportedDevice` | `makeSSLSocketFactory` / `makeTrustManager` | Runtime is not a supported production Android device |
 
 ---
 
@@ -411,7 +412,7 @@ Example debug output:
 1. Call `TrustPin.setup` **once** during app startup (typically in `Application.onCreate`).
 2. On Android, **always** use `fromAssets(context)` or `.withAndroidStorage(context)`.
 3. Treat any `TrustPinError` from `setup` as a hard stop — never fall through to an unpinned HTTP client.
-4. Pair `setup` with `TrustPin.requirePinned()` immediately before building any pinned HTTP client.
+4. Gate on `TrustPin.awaitConfiguration(timeout)` before building any pinned HTTP client your app cannot run without.
 5. Set the log level **before** `setup` for full logging coverage.
 
 ### Security
@@ -475,10 +476,10 @@ The downloaded configuration failed the SDK's integrity check. Re-issue credenti
 
 ### `makeSSLSocketFactory` throws `UnsupportedDevice`
 
-The SDK refuses to operate on emulators / AOSP builds / `test-keys`-signed images by default. For development:
+Release builds of the SDK run only on supported production Android devices. For development and QA:
 
-- Use a production-shaped device or a Play Store-signed emulator image.
-- Or catch `TrustPinError.UnsupportedDevice` and degrade gracefully in non-production builds.
+- Use a debug-built variant of your app — debug builds run everywhere, including emulators.
+- Or use a stock production device for release-shaped testing.
 
 ### Certificate verification fails
 
