@@ -67,7 +67,7 @@ JVM customers should request access to the hardened JVM JAR via email at [suppor
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:6.0.0")
+    implementation("cloud.trustpin:kotlin-sdk:6.1.0")
 }
 ```
 
@@ -75,7 +75,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'cloud.trustpin:kotlin-sdk:6.0.0'
+    implementation 'cloud.trustpin:kotlin-sdk:6.1.0'
 }
 ```
 
@@ -85,13 +85,45 @@ dependencies {
 <dependency>
     <groupId>cloud.trustpin</groupId>
     <artifactId>kotlin-sdk</artifactId>
-    <version>1.2.0</version>
+    <version>6.1.0</version>
 </dependency>
 ```
 
 ### JVM
 
 The Maven Central artifact is an Android AAR. For JVM / server / desktop use, request the hardened JVM JAR at [support@trustpin.cloud](mailto:support@trustpin.cloud).
+
+### Optional client adapters — OkHttp / Ktor
+
+Thin, optional integration artifacts published to Maven Central alongside the SDK, versioned in lockstep with it. Each contains only public-API glue (no SDK internals), and neither pulls in the SDK or the HTTP client transitively — your app supplies both.
+
+```kotlin
+dependencies {
+    implementation("cloud.trustpin:trustpin-okhttp:6.1.0")  // OkHttp
+    implementation("cloud.trustpin:trustpin-ktor:6.1.0")    // Ktor (OkHttp engine); includes trustpin-okhttp
+}
+```
+
+Usage — one line replaces the manual `sslSocketFactory(...)` wiring and guarantees the factory/trust-manager pair belongs to the same TrustPin instance:
+
+```kotlin
+// OkHttp
+val client = OkHttpClient.Builder()
+    .trustPin()                                  // or .trustPin(TrustPin.instance("payments"))
+    .build()
+
+// Ktor — OkHttp engine only (TLS configuration is engine-specific in Ktor)
+val ktorClient = HttpClient(OkHttp) {
+    engine { trustPin() }
+}
+```
+
+```java
+// Java
+OkHttpClient client = TrustPinOkHttp.trustPin(new OkHttpClient.Builder()).build();
+```
+
+Call after `TrustPin.setup(...)`. A Ktor `preconfigured` OkHttpClient bypasses engine configuration — pin it directly with the OkHttp adapter instead.
 
 ### R8 / ProGuard
 
@@ -103,7 +135,7 @@ The Android AAR ships consumer rules automatically. Apps should not need to add 
 
 ### Configure on Android (recommended)
 
-On Android, setup **must go through a `Context`-aware entry point** so the SDK can persist its integrity-check state under `Context.getNoBackupFilesDir()`. There are two equivalent recommended paths.
+On Android, setup **must go through a `Context`-aware entry point** so the SDK can persist its integrity-check state on-device (excluded from backups). There are two equivalent recommended paths.
 
 > ⚠️ **Do not use the contextless `TrustPinConfiguration(orgId, projId, publicKey)` constructor on Android.** It works, but the SDK has no `Context` and falls back to an in-memory integrity-check backend that does **not survive a process restart**. A one-shot `info` log is emitted so the regression is operator-visible.
 

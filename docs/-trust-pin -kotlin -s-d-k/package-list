@@ -13,8 +13,11 @@ $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/fetchCertificateBlo
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/instance/#kotlin.String/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/instance.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/isConfigurationLoaded/#/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/is-configuration-loaded.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/makeSSLSocketFactory/#/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/make-s-s-l-socket-factory.html
+$dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/makeTlsPair/#/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/make-tls-pair.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/makeTrustManager/#/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/make-trust-manager.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/setLogLevel/#cloud.trustpin.kotlin.sdk.TrustPinLogLevel/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/set-log-level.html
+$dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/setLogSink/#cloud.trustpin.kotlin.sdk.TrustPinLogSink?/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/set-log-sink.html
+$dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/setValidationListener/#cloud.trustpin.kotlin.sdk.TrustPinValidationListener?/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/set-validation-listener.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/setup/#cloud.trustpin.kotlin.sdk.TrustPinConfiguration/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/setup.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/setupBlocking/#cloud.trustpin.kotlin.sdk.TrustPinConfiguration/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/setup-blocking.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/verify/#kotlin.String#java.security.cert.X509Certificate#kotlin.Long/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/verify.html
@@ -23,6 +26,9 @@ $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/verify/#kotlin.Stri
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/verifyBlocking/#kotlin.String#java.security.cert.X509Certificate#kotlin.Long/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/verify-blocking.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/verifyBlocking/#kotlin.String#kotlin.String#kotlin.Long/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/verify-blocking.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.Companion/verifyBlocking/#kotlin.String#kotlin.collections.List[java.security.cert.X509Certificate]#kotlin.Long/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-companion/verify-blocking.html
+$dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.TlsPair///PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-tls-pair/index.html
+$dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.TlsPair/sslSocketFactory/#/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-tls-pair/ssl-socket-factory.html
+$dokka.location:cloud.trustpin.kotlin.sdk/TrustPin.TlsPair/trustManager/#/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/-tls-pair/trust-manager.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin///PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/index.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin/awaitConfiguration/#kotlin.Long/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/await-configuration.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin/awaitConfigurationBlocking/#kotlin.Long/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/await-configuration-blocking.html
@@ -30,6 +36,7 @@ $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin/fetchCertificate/#kotlin.Stri
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin/fetchCertificateBlocking/#kotlin.String#kotlin.Int#kotlin.Long/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/fetch-certificate-blocking.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin/isConfigurationLoaded/#/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/is-configuration-loaded.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin/makeSSLSocketFactory/#/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/make-s-s-l-socket-factory.html
+$dokka.location:cloud.trustpin.kotlin.sdk/TrustPin/makeTlsPair/#/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/make-tls-pair.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin/makeTrustManager/#/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/make-trust-manager.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin/setLogLevel/#cloud.trustpin.kotlin.sdk.TrustPinLogLevel/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/set-log-level.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPin/setup/#cloud.trustpin.kotlin.sdk.TrustPinConfiguration/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin/setup.html
@@ -73,10 +80,15 @@ $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinLogLevel/entries/#/PointingToD
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinLogLevel/value/#/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-log-level/value.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinLogLevel/valueOf/#kotlin.String/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-log-level/value-of.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinLogLevel/values/#/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-log-level/values.html
+$dokka.location:cloud.trustpin.kotlin.sdk/TrustPinLogSink///PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-log-sink/index.html
+$dokka.location:cloud.trustpin.kotlin.sdk/TrustPinLogSink/log/#cloud.trustpin.kotlin.sdk.TrustPinLogLevel#kotlin.String#kotlin.String/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-log-sink/log.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinMode.PERMISSIVE///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-mode/-p-e-r-m-i-s-s-i-v-e/index.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinMode.STRICT///PointingToDeclaration/{"org.jetbrains.dokka.links.EnumEntryDRIExtra":{"key":"org.jetbrains.dokka.links.EnumEntryDRIExtra"}}-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-mode/-s-t-r-i-c-t/index.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinMode///PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-mode/index.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinMode/entries/#/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-mode/entries.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinMode/valueOf/#kotlin.String/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-mode/value-of.html
 $dokka.location:cloud.trustpin.kotlin.sdk/TrustPinMode/values/#/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-mode/values.html
+$dokka.location:cloud.trustpin.kotlin.sdk/TrustPinValidationListener///PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-validation-listener/index.html
+$dokka.location:cloud.trustpin.kotlin.sdk/TrustPinValidationListener/onValidationFailure/#kotlin.String#kotlin.String#cloud.trustpin.kotlin.sdk.TrustPinError#java.security.cert.X509Certificate/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-validation-listener/on-validation-failure.html
+$dokka.location:cloud.trustpin.kotlin.sdk/TrustPinValidationListener/onValidationSuccess/#kotlin.String#kotlin.String/PointingToDeclaration/-trust-pin -kotlin -s-d-k/cloud.trustpin.kotlin.sdk/-trust-pin-validation-listener/on-validation-success.html
 cloud.trustpin.kotlin.sdk
