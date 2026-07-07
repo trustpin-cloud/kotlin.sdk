@@ -3,8 +3,8 @@ package cloud.trustpin.android.sample.data.repository
 import cloud.trustpin.android.sample.domain.model.ConnectionOutcome
 import cloud.trustpin.android.sample.domain.model.DomainError
 import cloud.trustpin.android.sample.domain.repository.NetworkRepository
-import cloud.trustpin.kotlin.sdk.TrustPin
 import cloud.trustpin.kotlin.sdk.TrustPinError
+import cloud.trustpin.kotlin.sdk.okhttp.trustPin
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -12,8 +12,8 @@ import okhttp3.Request
 import java.util.concurrent.TimeUnit
 
 /**
- * OkHttp-backed [NetworkRepository] that pins via TrustPin's SSL factory +
- * trust manager.
+ * OkHttp-backed [NetworkRepository] that pins via the `:trustpin-okhttp`
+ * adapter (`OkHttpClient.Builder.trustPin()`).
  *
  * Body preview is capped to [BODY_PREVIEW_LIMIT] characters here — the
  * data-layer truncation contract from the iOS spec — so the use-case layer
@@ -55,14 +55,11 @@ class OkHttpNetworkRepository : NetworkRepository {
     }
 
     private fun buildClient(): OkHttpClient {
-        val sslSocketFactory = TrustPin.default.makeSSLSocketFactory()
-        val trustManager = TrustPin.default.makeTrustManager()
-
         return OkHttpClient.Builder()
             .connectTimeout(REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .readTimeout(REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .writeTimeout(REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-            .sslSocketFactory(sslSocketFactory, trustManager)
+            .trustPin()
             .build()
     }
 

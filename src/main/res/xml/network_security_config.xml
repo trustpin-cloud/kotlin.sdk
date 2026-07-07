@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  A certificate-pinning sample must model the network posture we recommend:
+  no cleartext traffic anywhere, in any build variant. TrustPin's own
+  configuration fetch and all sample requests are HTTPS-only, so nothing
+  here needs an exception.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+</network-security-config>

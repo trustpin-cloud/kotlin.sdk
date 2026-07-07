@@ -31,6 +31,18 @@ class TestPinnedConnectionUseCase(
             throw DomainError.Validation("No URL provided")
         }
 
+        // Pin validation happens inside the TLS handshake (OkHttp only applies
+        // the TrustPin socket factory to https://), so a plain-HTTP request
+        // would never be pin-checked at all. Reject it here instead of logging
+        // a "validated" success for a connection TrustPin never saw.
+        if (!url.trim().startsWith("https://", ignoreCase = true)) {
+            logger.warning(
+                "Test connection failed: only https:// URLs are pin-validated — " +
+                    "plain HTTP performs no TLS handshake, so TrustPin never sees the connection"
+            )
+            throw DomainError.Validation("Only https:// URLs can be tested")
+        }
+
         logger.info("Testing connection to: $url")
         logger.info("Using TrustPin SSL certificate validation")
         logger.debug("Method: GET")
