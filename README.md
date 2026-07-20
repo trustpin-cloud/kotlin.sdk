@@ -67,7 +67,7 @@ JVM customers should request access to the hardened JVM JAR via email at [suppor
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:6.1.2")
+    implementation("cloud.trustpin:kotlin-sdk:6.2.0")
 }
 ```
 
@@ -75,7 +75,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'cloud.trustpin:kotlin-sdk:6.1.2'
+    implementation 'cloud.trustpin:kotlin-sdk:6.2.0'
 }
 ```
 
@@ -99,8 +99,8 @@ Thin, optional integration artifacts published to Maven Central alongside the SD
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:trustpin-okhttp:6.1.2")  // OkHttp
-    implementation("cloud.trustpin:trustpin-ktor:6.1.2")    // Ktor (OkHttp engine); includes trustpin-okhttp
+    implementation("cloud.trustpin:trustpin-okhttp:6.2.0")  // OkHttp
+    implementation("cloud.trustpin:trustpin-ktor:6.2.0")    // Ktor (OkHttp engine); includes trustpin-okhttp
 }
 ```
 
