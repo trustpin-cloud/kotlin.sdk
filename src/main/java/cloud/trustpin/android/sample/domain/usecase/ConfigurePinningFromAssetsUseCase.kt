@@ -23,6 +23,13 @@ class ConfigurePinningFromAssetsUseCase(
         }
 
         logger.info("Loading TrustPin configuration from assets/trustpin.json...")
+        logger.info(
+            if (configurationRepository.hasEmbeddedSeed()) {
+                "Embedded configuration: assets/trustpin-seed.b64 (used only if every online source is unreachable)"
+            } else {
+                "Embedded configuration: none (assets/trustpin-seed.b64 is empty)"
+            },
+        )
 
         return try {
             val credentials = configurationRepository.configureFromAssets()

@@ -34,6 +34,13 @@ class ConfigurePinningUseCase(
 
         logger.info("Configuring TrustPin...")
         logger.info("Mode: ${credentials.mode.name}")
+        logger.info(
+            if (configurationRepository.hasEmbeddedSeed()) {
+                "Embedded configuration: assets/trustpin-seed.b64 (used only if every online source is unreachable)"
+            } else {
+                "Embedded configuration: none (assets/trustpin-seed.b64 is empty)"
+            },
+        )
 
         try {
             configurationRepository.configure(credentials)

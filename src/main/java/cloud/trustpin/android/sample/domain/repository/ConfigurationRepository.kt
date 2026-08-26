@@ -16,6 +16,13 @@ interface ConfigurationRepository {
     /** Whether [configure] (or [configureFromAssets]) has completed for this process. */
     fun isConfigured(): Boolean
 
+    /**
+     * Whether the APK ships a non-empty `assets/trustpin-seed.b64`. Both
+     * configuration paths hand it to the SDK as the embedded configuration so
+     * the cold-start fallback can be exercised (airplane mode + first launch).
+     */
+    fun hasEmbeddedSeed(): Boolean
+
     /** Configure the SDK from caller-supplied credentials. Suspends until done. */
     suspend fun configure(credentials: PinningCredentials)
 
