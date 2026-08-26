@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
-    <title>isConfigurationLoaded</title>
+    <title>embeddedConfiguration</title>
     <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
         <script>var pathToRoot = "../../../";</script>
     <script>document.documentElement.classList.replace("no-js", "js");</script>
@@ -104,12 +104,12 @@
         </nav>
         <div id="resizer" class="resizer" data-item-type="BAR"></div>
         <div id="main" data-item-type="SECTION" role="main">
-<div class="main-content" data-page-type="member" id="content" pageIds="TrustPin Kotlin SDK::cloud.trustpin.kotlin.sdk/TrustPin/isConfigurationLoaded/#/PointingToDeclaration//-251573632">
-  <div class="breadcrumbs"><a href="../../../index.html">TrustPin Kotlin SDK</a><span class="delimiter">/</span><a href="../index.html">cloud.trustpin.kotlin.sdk</a><span class="delimiter">/</span><a href="index.html">TrustPin</a><span class="delimiter">/</span><span class="current">isConfigurationLoaded</span></div>
+<div class="main-content" data-page-type="member" id="content" pageIds="TrustPin Kotlin SDK::cloud.trustpin.kotlin.sdk/TrustPinConfiguration/embeddedConfiguration/#/PointingToDeclaration//-251573632">
+  <div class="breadcrumbs"><a href="../../../index.html">TrustPin Kotlin SDK</a><span class="delimiter">/</span><a href="../index.html">cloud.trustpin.kotlin.sdk</a><span class="delimiter">/</span><a href="index.html">TrustPinConfiguration</a><span class="delimiter">/</span><span class="current">embeddedConfiguration</span></div>
   <div class="cover ">
-    <h1 class="cover"><span>is</span><wbr></wbr><span>Configuration</span><wbr></wbr><span><span>Loaded</span></span></h1>
+    <h1 class="cover"><span>embedded</span><wbr></wbr><span><span>Configuration</span></span></h1>
   </div>
-  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="is-configuration-loaded.html">isConfigurationLoaded</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><p class="paragraph"><code class="lang-kotlin">true</code> when a validated pinning payload — fetched, retained from an earlier run, or the embedded configuration once it has been accepted — is usable by <a href="verify.html">verify</a> without a new fetch.</p><p class="paragraph">Pure state read — never triggers a fetch, never blocks, and is safe to call from any thread including the Android main thread. Use <a href="await-configuration.html">awaitConfiguration</a> to actively wait for a configuration. A <code class="lang-kotlin">true</code> result reflects the moment of the read; a previously loaded configuration can expire if it cannot be refreshed for an extended period.</p></div></div>
+  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="embedded-configuration.html">embeddedConfiguration</a><span class="token operator">: </span><a href="../-embedded-configuration/index.html">EmbeddedConfiguration</a><span class="token operator">?</span></div></div></div>
 </div>
     <div class="footer">
         <div class="footer--container">

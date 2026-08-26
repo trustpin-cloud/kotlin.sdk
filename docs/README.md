@@ -44,7 +44,7 @@
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:6.2.0")
+    implementation("cloud.trustpin:kotlin-sdk:6.3.0")
 }
 ```
 
@@ -52,7 +52,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'cloud.trustpin:kotlin-sdk:6.2.0'
+    implementation 'cloud.trustpin:kotlin-sdk:6.3.0'
 }
 ```
 
@@ -62,7 +62,7 @@ dependencies {
 <dependency>
     <groupId>cloud.trustpin</groupId>
     <artifactId>kotlin-sdk</artifactId>
-    <version>6.2.0</version>
+    <version>6.3.0</version>
 </dependency>
 ```
 
@@ -94,7 +94,7 @@ This is the primary Android entry point. Drop a `trustpin.json` into the app mod
 }
 ```
 
-`organization_id`, `project_id`, `public_key` are required. `mode` is `"strict"` (default) or `"permissive"`. An optional `configuration_url` overrides the hosted configuration source — when present it must use HTTPS. Unknown top-level keys are ignored for forward compatibility.
+`organization_id`, `project_id`, `public_key` are required. `mode` is `"strict"` (default) or `"permissive"`. An optional `configuration_url` overrides the hosted configuration source — when present it must use HTTPS. An optional `embedded_configuration_asset` names a bundled signed configuration in `assets/` used only when no online source and no previously fetched configuration is available (see the README section "Embedded configuration" for the requirements). Unknown top-level keys are ignored for forward compatibility.
 
 **Per-flavor / per-build-type overrides** ride on standard Android source-set asset merging — no Gradle plugin required:
 

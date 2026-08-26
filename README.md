@@ -32,6 +32,7 @@ JVM customers should request access to the hardened JVM JAR via email at [suppor
   - [Android — `withAndroidStorage(context)`](#1b-programmatic-via-withandroidstoragecontext)
   - [JVM](#2-configure-on-jvm)
 - [`trustpin.json` reference (Android)](#-trustpinjson-reference-android)
+- [Embedded configuration](#-embedded-configuration)
 - [Usage Examples](#-usage-examples)
   - [OkHttp integration](#okhttp-integration)
   - [Retrofit](#retrofit)
@@ -67,7 +68,7 @@ JVM customers should request access to the hardened JVM JAR via email at [suppor
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:6.2.0")
+    implementation("cloud.trustpin:kotlin-sdk:6.3.0")
 }
 ```
 
@@ -75,7 +76,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'cloud.trustpin:kotlin-sdk:6.2.0'
+    implementation 'cloud.trustpin:kotlin-sdk:6.3.0'
 }
 ```
 
@@ -99,8 +100,8 @@ Thin, optional integration artifacts published to Maven Central alongside the SD
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:trustpin-okhttp:6.2.0")  // OkHttp
-    implementation("cloud.trustpin:trustpin-ktor:6.2.0")    // Ktor (OkHttp engine); includes trustpin-okhttp
+    implementation("cloud.trustpin:trustpin-okhttp:6.3.0")  // OkHttp
+    implementation("cloud.trustpin:trustpin-ktor:6.3.0")    // Ktor (OkHttp engine); includes trustpin-okhttp
 }
 ```
 
@@ -262,6 +263,7 @@ The `default` TrustPin instance can be configured from a JSON file in your appli
 | `public_key` | ✅ | Base64-encoded public key |
 | `mode` | ❌ | `"strict"` (default) or `"permissive"` |
 | `configuration_url` | ❌ | Optional custom source (HTTPS only) |
+| `embedded_configuration_asset` | ❌ | Asset name of the bundled signed configuration (see [Embedded configuration](#-embedded-configuration)) |
 
 Unknown top-level keys are ignored for forward compatibility.
 
@@ -290,6 +292,51 @@ app/src/ff/assets/trustpin.json      ← overrides for the `ff` product flavor
 - **The file is bundled into the APK** — `public_key` is the verification key for signed pin payloads, not key material.
 - **Failure modes** (file missing, malformed JSON, invalid `mode`, non-HTTPS `configuration_url`, etc.) all surface as `TrustPinError.InvalidProjectConfig`. A descriptive reason is written to logcat under the `[TrustPin]` tag.
 - **No log-level field** — log verbosity stays under programmatic control via `TrustPin.setLogLevel(...)`.
+
+---
+
+## 🧷 Embedded configuration
+
+TrustPin fetches its signed pinning configuration online and keeps the last validated one on the device. For the one case where neither exists — an app's **very first start while every configuration source is unreachable** — you can ship a signed configuration inside the app as a last-resort fallback.
+
+```kotlin
+// Android — the asset is read by the Context-aware setup path.
+TrustPin.setup(
+    TrustPinConfiguration(
+        organizationId = "your-org-id",
+        projectId      = "your-project-id",
+        publicKey      = "your-base64-public-key",
+        embeddedConfiguration = EmbeddedConfiguration.Asset("trustpin-seed.b64"),
+    ).withAndroidStorage(context)
+)
+
+// JVM — a classpath resource, or a file inside the installation.
+TrustPin.setup(
+    TrustPinConfiguration(
+        organizationId = "your-org-id",
+        projectId      = "your-project-id",
+        publicKey      = "your-base64-public-key",
+        embeddedConfiguration = EmbeddedConfiguration.File("config/trustpin-seed.b64"),
+    )
+)
+```
+
+Or, with `trustpin.json`, add `"embedded_configuration_asset": "trustpin-seed.b64"` and place the file in `assets/`.
+
+**Requirements**
+
+- **Use it only in apps protected by RASP** (runtime application self-protection) that guards bundled resources against modification. An unprotected app must not ship an embedded configuration.
+- **The file must be the unmodified signed payload** downloaded from the TrustPin dashboard for this project. It is verified against `publicKey` at `setup`; `setup` throws `TrustPinError.InvalidProjectConfig` if the file is not a bundled resource, cannot be read, or does not verify.
+- **Regenerate it in your CI pipeline on every release**, so it is never older than the app that ships it. Pins expire on their own schedule — an embedded configuration whose pins have all expired is equivalent to having no fallback.
+
+**Behaviour**
+
+- It is never preferred over an online source or over a configuration the SDK has already fetched and validated.
+- It is subject to the same integrity checks as any other configuration: a device that has already trusted a newer configuration will not accept an older embedded one.
+- `EmbeddedConfiguration.File` is JVM-only; on Android use `EmbeddedConfiguration.Asset` with one of the `Context`-aware setup paths.
+- The iOS SDK exposes the equivalent option; the file format is identical.
+
+**Trying it with the samples.** `AndroidSample` ships an empty `assets/trustpin-seed.b64` and `JavaSample` looks for `trustpin-seed.b64` in its working directory; both pass the file to the SDK whenever it has content. Paste the signed payload for your project into it, uninstall/reinstall (so no earlier configuration is retained), enable airplane mode and set up — the log shows the configuration being served from the embedded file.
 
 ---
 
@@ -556,8 +603,14 @@ data class TrustPinConfiguration(
     val projectId: String,
     val publicKey: String,
     val mode: TrustPinMode = TrustPinMode.STRICT,
-    val configurationURL: URL? = null
+    val configurationURL: URL? = null,
+    val embeddedConfiguration: EmbeddedConfiguration? = null,
 )
+
+sealed interface EmbeddedConfiguration {
+    data class Asset(val name: String) : EmbeddedConfiguration   // Android assets/ or JVM classpath
+    data class File(val path: String) : EmbeddedConfiguration    // JVM only
+}
 
 // Android-only extensions
 fun TrustPinConfiguration.withAndroidStorage(context: Context): TrustPinConfiguration
