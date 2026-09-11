@@ -44,7 +44,7 @@
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:6.3.0")
+    implementation("cloud.trustpin:kotlin-sdk:6.4.0")
 }
 ```
 
@@ -52,7 +52,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'cloud.trustpin:kotlin-sdk:6.3.0'
+    implementation 'cloud.trustpin:kotlin-sdk:6.4.0'
 }
 ```
 
@@ -62,7 +62,7 @@ dependencies {
 <dependency>
     <groupId>cloud.trustpin</groupId>
     <artifactId>kotlin-sdk</artifactId>
-    <version>6.3.0</version>
+    <version>6.4.0</version>
 </dependency>
 ```
 
