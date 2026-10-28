@@ -6,6 +6,8 @@
 
 [TrustPin](https://trustpin.cloud/) is a modern, lightweight, and secure Kotlin library that enforces **SSL Certificate Pinning** for **Android** applications. The Maven Central artifact is an Android AAR with bundled R8/ProGuard consumer rules.
 
+The optional app attestation module ships as a second AAR, `cloud.trustpin:kotlin-attest` — see [App attestation](#-app-attestation-kotlin-attest).
+
 > JVM/server/desktop support exists as a separately distributed hardened JAR. This documentation focuses on Android — JVM customers should request access via [support@trustpin.cloud](mailto:support@trustpin.cloud).
 
 ---
@@ -21,6 +23,7 @@
 - ✅ **Signed Configuration** — Cryptographically signed pinning configurations
 - ✅ **Built-in TrustManager & SSLSocketFactory** — Drop into OkHttp, Retrofit, Ktor, `HttpsURLConnection`
 - ✅ **Multi-instance support** — Isolated pinning contexts for multi-tenant apps and libraries
+- ✅ **App attestation** — Optional `kotlin-attest` AAR proves to your backend that requests come from your genuine app on a genuine Android device
 - ✅ **Intelligent Caching** — 10-minute configuration cache with stale fallback
 - ✅ **Comprehensive Logging** — Configurable log levels for debugging and monitoring
 - ✅ **Thread-Safe** — Built with coroutines and concurrent-safe operations
@@ -44,7 +47,7 @@
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:6.4.0")
+    implementation("cloud.trustpin:kotlin-sdk:7.0.0")
 }
 ```
 
@@ -52,7 +55,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'cloud.trustpin:kotlin-sdk:6.4.0'
+    implementation 'cloud.trustpin:kotlin-sdk:7.0.0'
 }
 ```
 
@@ -62,9 +65,30 @@ dependencies {
 <dependency>
     <groupId>cloud.trustpin</groupId>
     <artifactId>kotlin-sdk</artifactId>
-    <version>6.4.0</version>
+    <version>7.0.0</version>
 </dependency>
 ```
+
+### Optional client adapters — OkHttp / Ktor
+
+Thin, optional artifacts versioned in lockstep with the SDK. Neither pulls in the SDK or the HTTP client transitively — your app supplies both.
+
+```kotlin
+dependencies {
+    implementation("cloud.trustpin:trustpin-okhttp:7.0.0")  // OkHttp
+    implementation("cloud.trustpin:trustpin-ktor:7.0.0")    // Ktor (OkHttp engine); includes trustpin-okhttp
+}
+```
+
+### Optional app attestation — kotlin-attest
+
+```kotlin
+dependencies {
+    implementation("cloud.trustpin:kotlin-attest:7.0.0")
+}
+```
+
+See [App attestation](#-app-attestation-kotlin-attest) for configuration and setup.
 
 ---
 
@@ -265,6 +289,36 @@ class KtorNetworkClient(context: Context) {
 }
 ```
 
+### Attestation headers (OkHttp / Ktor adapters)
+
+The optional `trustpin-okhttp` and `trustpin-ktor` adapters install the pinned
+TLS pair with one call (`OkHttpClient.Builder().trustPin()`, `engine { trustPin() }`)
+and also add the headers supplied by an *attestation provider* registered on the
+TrustPin instance. The TrustPin attestation module registers itself when it is
+set up; you can also register your own:
+
+```kotlin
+TrustPin.setAttestationProvider(object : TrustPinAttestationProvider {
+    override val headerNames = setOf("X-My-Header")
+    override suspend fun attestationHeaders(request: TrustPinAttestationRequest): Map<String, String> =
+        mapOf("X-My-Header" to tokenFor(request.url))
+})
+```
+
+Headers are added to HTTPS requests only. A provider declares the names of the
+headers it adds (`headerNames`); those names belong to it: on every request,
+and again on every redirect, TrustPin removes them and adds the provider's
+headers for that request's own URL, so a header meant for one host never
+follows a redirect to another host or to plain `http`. Headers the provider
+did not declare are never added. A provider that does not answer in time, or
+fails, is ignored for that request and the request is sent without its
+headers; a provider can never fail a request or affect certificate pinning.
+With no provider registered, requests are unchanged. Clients built without
+the adapters can call `TrustPin.attestationHeaders(request)` (or
+`attestationHeadersBlocking`) and add the result themselves; if such a client
+follows redirects, turn that off or rebuild each redirect's headers with
+`TrustPin.redirectedRequestHeaders(request)`.
+
 ### Manual certificate verification
 
 For custom networking stacks or one-off certificate inspection:
@@ -308,6 +362,89 @@ analytics.setup(
 Each instance has its own state and log output tagged with the instance id. `fromAssets(context)` always applies to `TrustPin.default`; named instances use the programmatic path.
 
 ---
+
+## 🛡 App attestation (kotlin-attest)
+
+`kotlin-attest` proves to your backend that requests come from your genuine
+app on a genuine Android device, using Android Key Attestation and Google
+Play Integrity together with the verifier you run. It ships as a second AAR
+next to `kotlin-sdk` (`cloud.trustpin:kotlin-attest`) and is released at the
+same version, starting with 7.0.0.
+
+```kotlin
+dependencies {
+    implementation("cloud.trustpin:kotlin-attest:7.0.0")
+}
+```
+
+**Configuration.** Add these keys to the same `assets/trustpin.json` that
+holds your pinning configuration:
+
+| Key | Required | Type | Notes |
+|---|---|---|---|
+| `attest_verifier_url` | yes | string | HTTPS base URL of your attestation verifier, without the version segment (`https://api.example.com/attest`) |
+| `attested_hosts` | yes | array of string | Hosts that receive the `TrustPin-Attestation` header; `*.example.com` covers one label. IP addresses are not accepted |
+| `google_cloud_project_number` | no | string or number | Your Google Cloud project number, needed when your policy asks for Play Integrity |
+
+Register the verifier's domain in your TrustPin project: calls to the
+verifier are pinned by the `TrustPin` instance with the same identifier, and
+in strict mode an unregistered verifier host is never reached.
+
+**Setup.** Set up pinning first, then attestation:
+
+```kotlin
+TrustPin.setup(TrustPinConfiguration.fromAssets(context).withAndroidStorage(context))
+TrustPinAttest.setup(context, TrustPinAttestConfiguration.fromAssets(context))
+TrustPinAttest.bindToHeader("Authorization")   // bind tokens to the session
+TrustPinAttest.prefetch()                       // so the first request does not wait
+```
+
+**Where the header comes from.** Automatically on HTTPS requests to the
+configured hosts made through TrustPin's OkHttp and Ktor adapters
+(`OkHttpClient.Builder().trustPin()`, `engine { trustPin() }`). For your own
+client, `TrustPinAttest.attestationHeaders(url, requestHeaders)` returns the
+header to add; for other clients (gRPC, WebSockets), `TrustPinAttest.getToken()`.
+The header is only ever added to `https` requests. The adapters also handle
+redirects: a redirect gets the header only if it goes to an `https` URL on a
+configured host. If your own client follows redirects, turn that off or
+rebuild each redirect's headers with `TrustPin.redirectedRequestHeaders`, so
+the token never follows a redirect to another host. The SDK never blocks or
+fails your requests: when no token is available the request is sent without
+the header and your backend decides how to treat it.
+
+**Binding.** `setTokenBinding(value)` binds every token to a value of your
+choice; `bindToHeader("Authorization")` binds each request's token to that
+header's value on the request. The value never leaves the device. A change of
+binding renews the token. `prefetch()` with `bindToHeader` attests early but
+cannot bind (there is no request yet): the first bound request renews the
+token once more, cheaply. If your verifier requires a binding, nothing can be
+prefetched until one is known; call `setTokenBinding` with the session value
+before `prefetch()`. With header binding, `getToken()` returns a token bound
+to the most recent request this instance saw; use `setTokenBinding` for
+clients that send no such request. `setTokenBinding(null)` removes the fixed
+binding only.
+
+**State and logging.** `TrustPinAttest.state` is `Unavailable`, `Attesting`,
+`Ready(expiresAtMillis)` or `Failed(error, retryAtMillis)`;
+`setStateListener` observes changes. `TrustPinAttestState` and
+`TrustPinAttestError` may gain subclasses in a minor release: give `when`
+expressions over them an `else` branch. `setLogLevel` and `setLogSink` control
+the module's own logging, off by default; pass `null` to `setLogSink` to
+restore logcat. `TrustPinAttest.reset()` (a suspending call; `resetBlocking()`
+for Java) discards the attested key so the next request attests a new one.
+
+**Emulators and development.** Emulators cannot produce device evidence. For
+development, your verifier's operator can issue a debug token; pass it as
+`TrustPinAttestConfiguration.debugToken` from a debug-only build field. It is
+used only when the app is debuggable and ignored in every other build.
+
+**One process.** Attestation is designed for one process per app: set it up
+in the process that performs your networking. Two processes attesting at the
+same time are harmless but spend evidence quota twice.
+
+**Data safety.** For your Play Console declaration: `kotlin-attest` sends
+attestation evidence and tokens only to your own verifier, sends nothing to
+TrustPin, and collects no device or user identifier.
 
 ## 🎯 Pinning Modes
 
