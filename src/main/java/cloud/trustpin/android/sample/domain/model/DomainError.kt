@@ -15,6 +15,9 @@ sealed class DomainError(message: String) : Exception(message) {
     /** TrustPin SDK rejected the configuration or a pin check. */
     class Pinning(val typeName: String, message: String) : DomainError(message)
 
+    /** The attestation SDK rejected its configuration or setup. */
+    class Attestation(val typeName: String, message: String) : DomainError(message)
+
     /** Transport-level failure during a network request. */
     class Network(message: String) : DomainError(message)
 

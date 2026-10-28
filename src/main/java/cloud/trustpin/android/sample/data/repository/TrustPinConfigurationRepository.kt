@@ -1,15 +1,16 @@
 package cloud.trustpin.android.sample.data.repository
 
 import android.content.Context
-import cloud.trustpin.android.sample.domain.model.DomainError
+import cloud.trustpin.android.sample.data.mapErrors
 import cloud.trustpin.android.sample.domain.model.PinningCredentials
 import cloud.trustpin.android.sample.domain.repository.ConfigurationRepository
 import cloud.trustpin.kotlin.sdk.EmbeddedConfiguration
 import cloud.trustpin.kotlin.sdk.TrustPin
 import cloud.trustpin.kotlin.sdk.TrustPinConfiguration
-import cloud.trustpin.kotlin.sdk.TrustPinError
 import cloud.trustpin.kotlin.sdk.fromAssets
 import cloud.trustpin.kotlin.sdk.withAndroidStorage
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 
 /**
  * Adapts [TrustPin] to the [ConfigurationRepository] contract. The mutable
@@ -19,9 +20,13 @@ import cloud.trustpin.kotlin.sdk.withAndroidStorage
  * (use cases, view-models) do not have to thread a [Context] through every
  * `configure(...)` call. Pass `Application` (or `Application.applicationContext`)
  * from your DI / `ServiceLocator` to avoid any Activity-leak risk.
+ *
+ * Main-safe: asset reads run on [ioDispatcher]; `TrustPin.setup` is a
+ * main-safe suspend function.
  */
 class TrustPinConfigurationRepository(
     private val applicationContext: Context,
+    private val ioDispatcher: CoroutineDispatcher,
 ) : ConfigurationRepository {
 
     @Volatile
@@ -29,7 +34,7 @@ class TrustPinConfigurationRepository(
 
     override fun isConfigured(): Boolean = configured
 
-    override fun hasEmbeddedSeed(): Boolean = embeddedSeed() != null
+    override suspend fun hasEmbeddedSeed(): Boolean = withContext(ioDispatcher) { embeddedSeed() != null }
 
     /**
      * Predefined asset for the embedded (last-resort) configuration. Shipped
@@ -47,59 +52,42 @@ class TrustPinConfigurationRepository(
         return if (size > 0) EmbeddedConfiguration.Asset(SEED_ASSET) else null
     }
 
-    override suspend fun configure(credentials: PinningCredentials) {
-        try {
-            TrustPin.default.setup(
-                TrustPinConfiguration(
-                    credentials.organizationId,
-                    credentials.projectId,
-                    credentials.publicKey,
-                    mode = credentials.mode,
-                    embeddedConfiguration = embeddedSeed(),
-                ).withAndroidStorage(applicationContext)
-            )
-            configured = true
-        } catch (e: TrustPinError) {
-            configured = false
-            throw DomainError.Pinning(
-                typeName = e::class.simpleName ?: "TrustPinError",
-                message = e.message ?: "Unknown TrustPin error",
-            )
-        } catch (e: Exception) {
-            configured = false
-            throw DomainError.Unknown(e.message ?: e::class.simpleName ?: "Unknown error")
-        }
+    override suspend fun configure(credentials: PinningCredentials) = mapErrors("Unknown TrustPin error") {
+        val seed = withContext(ioDispatcher) { embeddedSeed() }
+        TrustPin.default.setup(
+            TrustPinConfiguration(
+                credentials.organizationId,
+                credentials.projectId,
+                credentials.publicKey,
+                mode = credentials.mode,
+                embeddedConfiguration = seed,
+            ).withAndroidStorage(applicationContext)
+        )
+        configured = true
     }
 
-    override suspend fun configureFromAssets(): PinningCredentials {
-        try {
-            var configuration = TrustPinConfiguration.fromAssets(applicationContext)
+    override suspend fun configureFromAssets(): PinningCredentials = mapErrors("Unknown TrustPin error") {
+        val configuration = withContext(ioDispatcher) {
+            val fromAssets = TrustPinConfiguration.fromAssets(applicationContext)
             // trustpin.json deliberately omits `embedded_configuration_asset`
             // (the asset is empty until a real seed is dropped in); attach it
             // programmatically when it has content. `copy` yields a new
             // instance, so it needs its own Context decoration.
             val seed = embeddedSeed()
-            if (configuration.embeddedConfiguration == null && seed != null) {
-                configuration = configuration.copy(embeddedConfiguration = seed).withAndroidStorage(applicationContext)
+            if (fromAssets.embeddedConfiguration == null && seed != null) {
+                fromAssets.copy(embeddedConfiguration = seed).withAndroidStorage(applicationContext)
+            } else {
+                fromAssets
             }
-            TrustPin.default.setup(configuration)
-            configured = true
-            return PinningCredentials(
-                organizationId = configuration.organizationId,
-                projectId = configuration.projectId,
-                publicKey = configuration.publicKey,
-                mode = configuration.mode,
-            )
-        } catch (e: TrustPinError) {
-            configured = false
-            throw DomainError.Pinning(
-                typeName = e::class.simpleName ?: "TrustPinError",
-                message = e.message ?: "Unknown TrustPin error",
-            )
-        } catch (e: Exception) {
-            configured = false
-            throw DomainError.Unknown(e.message ?: e::class.simpleName ?: "Unknown error")
         }
+        TrustPin.default.setup(configuration)
+        configured = true
+        PinningCredentials(
+            organizationId = configuration.organizationId,
+            projectId = configuration.projectId,
+            publicKey = configuration.publicKey,
+            mode = configuration.mode,
+        )
     }
 }
 

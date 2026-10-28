@@ -15,7 +15,7 @@
     <string name="hint_org_id">Enter your organization ID</string>
     <string name="hint_project_id">Enter your project ID</string>
     <string name="hint_public_key">Enter your base64 public key</string>
-    <string name="hint_test_url">Enter target URL (e.g. https://api.trustpin.cloud/health)</string>
+    <string name="hint_test_url">Enter target URL (e.g. https://cdn.trustpin.cloud/health.json)</string>
     <string name="status_not_configured">TrustPin not configured</string>
     <string name="status_configured">TrustPin configured</string>
     <string name="status_testing">Testing connection&#8230;</string>
@@ -24,4 +24,30 @@
     <string name="banner_link">app.trustpin.cloud</string>
     <string name="banner_link_url">https://app.trustpin.cloud</string>
     <string name="error_missing_credentials">Please enter your organization ID, project ID, and public key. Create them at https://app.trustpin.cloud</string>
+    <!-- Bottom navigation: one tab per feature -->
+    <string name="tab_pinning">Pinning</string>
+    <string name="tab_attestation">Attestation</string>
+    <string name="tab_pinning_title">Certificate pinning</string>
+    <string name="tab_attestation_title">App attestation</string>
+    <string name="configuration_title">TrustPin Configuration</string>
+    <string name="testing_title">Connection Testing</string>
+    <string name="default_test_url">https://cdn.trustpin.cloud/health.json</string>
+    <string name="log_welcome">Welcome to TrustPin Android Sample\nConfigure TrustPin and test connections&#8230;\n</string>
+    <!-- App attestation card (kotlin-attest, spec 003) -->
+    <string name="attestation_title">App attestation (kotlin-attest)</string>
+    <string name="attestation_caption">Reads attest_verifier_url / attested_hosts from trustpin.json. The protected call logs in to the sample API, then calls /home with the session; SDK log lines and state changes appear in the log below.</string>
+    <string name="attestation_needs_pinning">Attestation pairs with the default TrustPin instance. Configure pinning first.</string>
+    <string name="attestation_go_to_pinning">Go to Pinning</string>
+    <string name="attestation_setup">Set up attestation</string>
+    <string name="attestation_call_protected">Call protected endpoint</string>
+    <string name="attestation_sign_out">Sign out</string>
+    <string name="attestation_reset">Reset attestation</string>
+    <string name="attestation_state">Attestation state: %1$s</string>
+    <string name="attestation_status_not_set_up">not set up</string>
+    <string name="attestation_status_unavailable">set up, no token yet</string>
+    <string name="attestation_status_attesting">obtaining a token…</string>
+    <string name="attestation_status_ready">token ready until %1$s</string>
+    <string name="attestation_status_failed">failed (%1$s); next attempt after %2$s</string>
+    <string name="attestation_status_failed_no_retry">failed (%1$s); no automatic retry</string>
+    <string name="attestation_status_waiting_for_session">waiting for a session (the verifier binds tokens to it): tap Call protected endpoint to log in</string>
 </resources>

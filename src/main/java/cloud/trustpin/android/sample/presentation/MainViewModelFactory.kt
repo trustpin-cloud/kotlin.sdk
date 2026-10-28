@@ -24,6 +24,11 @@ class MainViewModelFactory(
             configureFromAssets = { logger -> locator.configurePinningFromAssetsUseCase(logger) },
             testConnection = { logger -> locator.testPinnedConnectionUseCase(logger) },
             fetchCertificate = { logger -> locator.fetchCertificateUseCase(logger) },
+            attestationRepository = locator.attestationRepository,
+            setUpAttestation = { logger -> locator.setUpAttestationUseCase(logger) },
+            callProtectedEndpoint = { logger -> locator.callProtectedEndpointUseCase(logger) },
+            signOut = { logger -> locator.signOutUseCase(logger) },
+            resetAttestation = { logger -> locator.resetAttestationUseCase(logger) },
         ) as T
     }
 }

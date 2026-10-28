@@ -1,0 +1,5 @@
+{
+  "base_url": "https://api.example.com",
+  "username": "YOUR_TEST_API_USER",
+  "password": "YOUR_TEST_API_PASSWORD"
+}

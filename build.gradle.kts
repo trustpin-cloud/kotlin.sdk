@@ -50,8 +50,9 @@ android {
 }
 
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:6.4.0")
-    implementation("cloud.trustpin:trustpin-okhttp:6.4.0")
+    implementation("cloud.trustpin:kotlin-sdk:7.0.0")
+    implementation("cloud.trustpin:trustpin-okhttp:7.0.0")
+    implementation("cloud.trustpin:kotlin-attest:7.0.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
@@ -60,20 +61,19 @@ dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("androidx.activity:activity-ktx:1.9.3")
 
     // Networking (compatible with Kotlin 2.3.0)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
 
     // Coroutines (compatible with Kotlin 2.3.0)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 
-    // Testing
+    // Testing: JVM unit tests for the parsers, use cases and ViewModel
     testImplementation("junit:junit:4.13.2")
+    testImplementation(kotlin("test"))
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }

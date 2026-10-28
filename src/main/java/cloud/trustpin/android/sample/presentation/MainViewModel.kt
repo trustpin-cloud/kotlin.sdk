@@ -4,10 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cloud.trustpin.android.sample.domain.model.DomainError
 import cloud.trustpin.android.sample.domain.model.PinningCredentials
+import cloud.trustpin.android.sample.domain.repository.AttestationRepository
 import cloud.trustpin.android.sample.domain.repository.ConfigurationRepository
+import cloud.trustpin.android.sample.domain.usecase.CallProtectedEndpointUseCase
 import cloud.trustpin.android.sample.domain.usecase.ConfigurePinningFromAssetsUseCase
 import cloud.trustpin.android.sample.domain.usecase.ConfigurePinningUseCase
 import cloud.trustpin.android.sample.domain.usecase.FetchCertificateUseCase
+import cloud.trustpin.android.sample.domain.usecase.ResetAttestationUseCase
+import cloud.trustpin.android.sample.domain.usecase.SetUpAttestationUseCase
+import cloud.trustpin.android.sample.domain.usecase.SignOutUseCase
 import cloud.trustpin.android.sample.domain.usecase.TestPinnedConnectionUseCase
 import cloud.trustpin.kotlin.sdk.TrustPinMode
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +36,11 @@ class MainViewModel(
     private val configureFromAssets: (logger: UiLogSink) -> ConfigurePinningFromAssetsUseCase,
     private val testConnection: (logger: UiLogSink) -> TestPinnedConnectionUseCase,
     private val fetchCertificate: (logger: UiLogSink) -> FetchCertificateUseCase,
+    private val attestationRepository: AttestationRepository,
+    private val setUpAttestation: (logger: UiLogSink) -> SetUpAttestationUseCase,
+    private val callProtectedEndpoint: (logger: UiLogSink) -> CallProtectedEndpointUseCase,
+    private val signOut: (logger: UiLogSink) -> SignOutUseCase,
+    private val resetAttestation: (logger: UiLogSink) -> ResetAttestationUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(UiState.Initial)
@@ -44,6 +54,14 @@ class MainViewModel(
         logSink.info("TrustPin Android Sample started")
         logSink.info("TrustPin configured for info-level logging")
         _state.update { it.copy(isConfigured = configurationRepository.isConfigured()) }
+        // The attestation SDK's own log lines and state transitions appear on screen,
+        // so device acceptance needs no logcat (spec 003 R-003-54).
+        viewModelScope.launch {
+            attestationRepository.status.collect { status -> _state.update { it.copy(attestationStatus = status) } }
+        }
+        viewModelScope.launch {
+            attestationRepository.sdkLog.collect { line -> logSink.debug(line) }
+        }
     }
 
     fun dispatch(action: UiAction) {
@@ -53,7 +71,12 @@ class MainViewModel(
             is UiAction.TestConnection -> handleTestConnection(action.url)
             is UiAction.FetchCertificate -> handleFetchCertificate(action.url)
             UiAction.ClearLog -> _state.update { it.copy(logEntries = emptyList()) }
+            UiAction.SetupAttestation -> handleSetupAttestation()
+            UiAction.CallProtectedEndpoint -> handleCallProtected()
+            UiAction.SignOut -> handleSignOut()
+            UiAction.ResetAttestation -> handleResetAttestation()
             UiAction.ConsumeTransientMessage -> _state.update { it.copy(transientMessage = null) }
+            is UiAction.SelectTab -> _state.update { it.copy(selectedTab = action.tab) }
         }
     }
 
@@ -138,6 +161,43 @@ class MainViewModel(
                         transientMessage = message,
                     )
                 }
+            }
+        }
+    }
+
+    private fun handleSetupAttestation() = runWork(failurePrefix = "Attestation setup failed") {
+        setUpAttestation(logSink).invoke()
+        "Attestation set up"
+    }
+
+    private fun handleCallProtected() = runWork(failurePrefix = "Protected call failed") {
+        val outcome = callProtectedEndpoint(logSink).invoke()
+        "Protected call: ${outcome.statusCode}"
+    }
+
+    private fun handleSignOut() {
+        signOut(logSink).invoke()
+    }
+
+    private fun handleResetAttestation() = runWork(failurePrefix = "Attestation reset failed") {
+        resetAttestation(logSink).invoke()
+        "Attestation reset"
+    }
+
+    /**
+     * Runs [work] with the busy flag set and shows its result (or the failure)
+     * as the transient message. Use cases log the details; a [DomainError] is
+     * the only failure they throw. Cancellation (the ViewModel being cleared)
+     * propagates untouched.
+     */
+    private fun runWork(failurePrefix: String, work: suspend () -> String) {
+        viewModelScope.launch {
+            _state.update { it.copy(isWorking = true) }
+            try {
+                val message = work()
+                _state.update { it.copy(isWorking = false, transientMessage = message) }
+            } catch (e: DomainError) {
+                _state.update { it.copy(isWorking = false, transientMessage = "$failurePrefix: ${e.message}") }
             }
         }
     }

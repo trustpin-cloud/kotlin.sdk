@@ -20,5 +20,15 @@ sealed interface UiAction {
 
     data object ClearLog : UiAction
 
+    data object SetupAttestation : UiAction
+
+    data object CallProtectedEndpoint : UiAction
+
+    data object SignOut : UiAction
+
+    data object ResetAttestation : UiAction
+
     data object ConsumeTransientMessage : UiAction
+
+    data class SelectTab(val tab: UiState.Tab) : UiAction
 }
