@@ -70,7 +70,7 @@ JVM customers should request access to the hardened JVM JAR via email at [suppor
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:7.0.0")
+    implementation("cloud.trustpin:kotlin-sdk:7.0.1")
 }
 ```
 
@@ -78,7 +78,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'cloud.trustpin:kotlin-sdk:7.0.0'
+    implementation 'cloud.trustpin:kotlin-sdk:7.0.1'
 }
 ```
 
@@ -88,7 +88,7 @@ dependencies {
 <dependency>
     <groupId>cloud.trustpin</groupId>
     <artifactId>kotlin-sdk</artifactId>
-    <version>7.0.0</version>
+    <version>7.0.1</version>
 </dependency>
 ```
 
@@ -102,8 +102,8 @@ Thin, optional integration artifacts published to Maven Central alongside the SD
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:trustpin-okhttp:7.0.0")  // OkHttp
-    implementation("cloud.trustpin:trustpin-ktor:7.0.0")    // Ktor (OkHttp engine); includes trustpin-okhttp
+    implementation("cloud.trustpin:trustpin-okhttp:7.0.1")  // OkHttp
+    implementation("cloud.trustpin:trustpin-ktor:7.0.1")    // Ktor (OkHttp engine); includes trustpin-okhttp
 }
 ```
 
@@ -126,7 +126,7 @@ val ktorClient = HttpClient(OkHttp) {
 OkHttpClient client = TrustPinOkHttp.trustPin(new OkHttpClient.Builder()).build();
 ```
 
-Call after `TrustPin.setup(...)`. A Ktor `preconfigured` OkHttpClient bypasses engine configuration — pin it directly with the OkHttp adapter instead.
+Call after `TrustPin.setup(...)`. With a Ktor `preconfigured` OkHttpClient, call `trustPin()` in the same `engine { }` block; don't pin a client used by Ktor with the OkHttp adapter.
 
 #### Attestation headers
 
@@ -143,14 +143,18 @@ TrustPin.setAttestationProvider(object : TrustPinAttestationProvider {
 ```
 
 Headers are added to HTTPS requests only. A provider declares the names of the
-headers it adds (`headerNames`); those names belong to it: on every request,
-and again on every redirect, TrustPin removes them and adds the provider's
-headers for that request's own URL, so a header meant for one host never
-follows a redirect to another host or to plain `http`. Headers the provider
-did not declare are never added. A provider that does not answer in time, or
-fails, is ignored for that request and the request is sent without its
-headers; a provider can never fail a request or affect certificate pinning.
-With no provider registered, requests are unchanged. Clients built without
+headers it adds (`headerNames`). Through the OkHttp adapter, a header the app
+already set on a request is kept, and the provider's headers are added only for
+names the request lacks; on every redirect to another URL, those names and any
+`TrustPin-Attestation` header are removed and the provider is asked again for
+that URL, so a header meant for one host never follows a redirect to another
+host or to plain `http`. Through the Ktor adapter, the provider's names belong
+to it: they're replaced on every request. Headers the provider did not declare
+are never added. A provider that does not answer in time, or fails, is ignored
+for that request and the request is sent without its headers; a provider can
+never fail a request or affect certificate pinning. With no provider
+registered, requests are unchanged, except that a redirect to another URL
+through the OkHttp adapter drops any `TrustPin-Attestation` header. Clients built without
 the adapters can call `TrustPin.attestationHeaders(request)` (or
 `attestationHeadersBlocking`) and add the result themselves; if such a client
 follows redirects, turn that off or rebuild each redirect's headers with
@@ -495,7 +499,7 @@ same version, starting with 7.0.0.
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-attest:7.0.0")
+    implementation("cloud.trustpin:kotlin-attest:7.0.1")
 }
 ```
 
@@ -526,7 +530,9 @@ configured hosts made through TrustPin's OkHttp and Ktor adapters
 (`OkHttpClient.Builder().trustPin()`, `engine { trustPin() }`). For your own
 client, `TrustPinAttest.attestationHeaders(url, requestHeaders)` returns the
 header to add; for other clients (gRPC, WebSockets), `TrustPinAttest.getToken()`.
-The header is only ever added to `https` requests. The adapters also handle
+The header is only ever added to `https` requests. A `TrustPin-Attestation`
+header your app sets itself is kept on OkHttp requests; with Ktor, the SDK
+replaces it. The adapters also handle
 redirects: a redirect gets the header only if it goes to an `https` URL on a
 configured host. If your own client follows redirects, turn that off or
 rebuild each redirect's headers with `TrustPin.redirectedRequestHeaders`, so
