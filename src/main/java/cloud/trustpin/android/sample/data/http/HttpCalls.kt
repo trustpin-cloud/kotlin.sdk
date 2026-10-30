@@ -42,7 +42,10 @@ suspend fun Call.executeAsync(maxBodyBytes: Long = DEFAULT_MAX_BODY_BYTES): Http
                             message = it.message,
                             headerCount = it.headers.size,
                             body = it.peekBody(maxBodyBytes).string(),
-                            sentHeaderNames = it.request.headers.names(),
+                            // The request sent on the network carries what the
+                            // network interceptors (TrustPin's attestation one
+                            // included) added; `it.request` is the app's.
+                            sentHeaderNames = (it.networkResponse?.request ?: it.request).headers.names(),
                         )
                     }
                 } catch (e: IOException) {

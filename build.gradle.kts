@@ -50,9 +50,9 @@ android {
 }
 
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:7.0.0")
-    implementation("cloud.trustpin:trustpin-okhttp:7.0.0")
-    implementation("cloud.trustpin:kotlin-attest:7.0.0")
+    implementation("cloud.trustpin:kotlin-sdk:7.0.1")
+    implementation("cloud.trustpin:trustpin-okhttp:7.0.1")
+    implementation("cloud.trustpin:kotlin-attest:7.0.1")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
@@ -74,6 +74,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation(kotlin("test"))
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }
