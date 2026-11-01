@@ -70,7 +70,7 @@ JVM customers should request access to the hardened JVM JAR via email at [suppor
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:7.0.1")
+    implementation("cloud.trustpin:kotlin-sdk:7.1.0")
 }
 ```
 
@@ -78,7 +78,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'cloud.trustpin:kotlin-sdk:7.0.1'
+    implementation 'cloud.trustpin:kotlin-sdk:7.1.0'
 }
 ```
 
@@ -88,7 +88,7 @@ dependencies {
 <dependency>
     <groupId>cloud.trustpin</groupId>
     <artifactId>kotlin-sdk</artifactId>
-    <version>7.0.1</version>
+    <version>7.1.0</version>
 </dependency>
 ```
 
@@ -102,8 +102,8 @@ Thin, optional integration artifacts published to Maven Central alongside the SD
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:trustpin-okhttp:7.0.1")  // OkHttp
-    implementation("cloud.trustpin:trustpin-ktor:7.0.1")    // Ktor (OkHttp engine); includes trustpin-okhttp
+    implementation("cloud.trustpin:trustpin-okhttp:7.1.0")  // OkHttp
+    implementation("cloud.trustpin:trustpin-ktor:7.1.0")    // Ktor (OkHttp engine); includes trustpin-okhttp
 }
 ```
 
@@ -499,7 +499,7 @@ same version, starting with 7.0.0.
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-attest:7.0.1")
+    implementation("cloud.trustpin:kotlin-attest:7.1.0")
 }
 ```
 
@@ -561,6 +561,29 @@ the module's own logging, off by default; pass `null` to `setLogSink` to
 restore logcat. `TrustPinAttest.reset()` (a suspending call; `resetBlocking()`
 for Java) discards the attested key so the next request attests a new one.
 
+**Verifier compatibility.** kotlin-attest 7.1.0 requires an attestation
+verifier at contract version 2 or later. With an older verifier the state is
+`Failed(VerifierIncompatible, …)` and no header is sent.
+
+**Sensitive operations.** For an operation your backend must not accept on a
+reused token alone (a payment, a change of beneficiary), ask for an assertion
+bound to the operation:
+
+```kotlin
+val headers = TrustPinAttest.assertionHeaders(sha256(body))   // suspending; assertionHeadersBlocking for Java
+```
+
+Add both headers to the request, and have your backend pass them with its own
+digest to your verifier. Each call costs one round trip to the verifier besides
+your request. For endpoints that reuse the token, a short token lifetime and a
+required binding are the recommended configuration.
+
+**Events.** `TrustPinAttest.setEventListener { event -> … }` or
+`TrustPinAttest.events.collect { … }` deliver durations, waits, key counts and
+reasons for your metrics (`TrustPinAttestEvent`; `when` with an `else` branch).
+Events never carry a token, a key or a device identifier; if you forward them to
+a third party, that disclosure is yours to make.
+
 **Emulators and development.** Emulators cannot produce device evidence. For
 development, your verifier's operator can issue a debug token; pass it as
 `TrustPinAttestConfiguration.debugToken` from a debug-only build field. It is
@@ -569,6 +592,14 @@ used only when the app is debuggable and ignored in every other build.
 **One process.** Attestation is designed for one process per app: set it up
 in the process that performs your networking. Two processes attesting at the
 same time are harmless but spend evidence quota twice.
+
+**What survives.** Stored state does not survive an uninstall, a clear-data or a
+transfer to another device: the app attests a new key.
+
+**Support flow.** `Failed(UnsupportedDevice, …)` after repeated key failures, or a
+refusal that persists, is cleared by `TrustPinAttest.reset()` once the cause is
+fixed; a device that keeps failing after a reset should be reported to your
+verifier's operator with the time of the attempt, which the verifier logs.
 
 **Data safety.** For your Play Console declaration: `kotlin-attest` sends
 attestation evidence and tokens only to your own verifier, sends nothing to
@@ -816,6 +847,7 @@ class TrustPinAttest {
         // Paired with the TrustPin instance of the same id; accepts the same ids.
         fun instance(id: String): TrustPinAttest
         const val HEADER_NAME: String                     // "TrustPin-Attestation"
+        const val ASSERTION_HEADER_NAME: String           // "TrustPin-Assertion"
         fun setLogSink(sink: TrustPinAttestLogSink?)      // null restores logcat
     }
 
@@ -830,6 +862,10 @@ class TrustPinAttest {
     suspend fun attestationHeaders(url: String, requestHeaders: Map<String, List<String>> = emptyMap()): Map<String, String>
     fun attestationHeadersBlocking(url: String, requestHeaders: Map<String, List<String>> = emptyMap()): Map<String, String>
 
+    // ── Sensitive operations ─────────────────────────────────────────────
+    suspend fun assertionHeaders(payloadDigest: ByteArray): Map<String, String>   // token + TrustPin-Assertion
+    fun assertionHeadersBlocking(payloadDigest: ByteArray): Map<String, String>
+
     // ── Binding ──────────────────────────────────────────────────────────
     fun setTokenBinding(value: String?)
     fun bindToHeader(name: String?)
@@ -837,6 +873,8 @@ class TrustPinAttest {
     // ── State, reset and logging ─────────────────────────────────────────
     val state: TrustPinAttestState
     fun setStateListener(listener: TrustPinAttestStateListener?)
+    fun setEventListener(listener: TrustPinAttestEventListener?)
+    val events: Flow<TrustPinAttestEvent>
     suspend fun reset()
     fun resetBlocking()
     fun setLogLevel(level: TrustPinAttestLogLevel)   // NONE, ERROR, WARNING, INFO, DEBUG
@@ -878,6 +916,18 @@ sealed class TrustPinAttestError : Exception() {
     object BindingRequired      : TrustPinAttestError()
     class AttestationFailed(val reasons: List<String>) : TrustPinAttestError()
     object VerifierUnavailable  : TrustPinAttestError()
+    object VerifierIncompatible : TrustPinAttestError()   // your verifier is older than this version requires
+    object InvalidDigest        : TrustPinAttestError()   // assertionHeaders: the digest is not 32 bytes
+}
+
+sealed class TrustPinAttestEvent {   // for your metrics; may gain subclasses: `when` with `else`
+    object KeyGenerated; class KeyReplaced(val count: Int)
+    class AttestationSucceeded(val durationMillis: Long); class Refused(val retryAtMillis: Long)
+    class AttestationFailed(val reasons: List<String>, val retryAtMillis: Long)
+    class RefreshSucceeded(val durationMillis: Long); class RefreshFailed(val error: TrustPinAttestError)
+    class WaitEntered(val untilMillis: Long); object WaitCleared
+    object DeviceUnsupported; object VerifierUnavailable
+    class AssertionSucceeded(val durationMillis: Long); class AssertionFailed(val error: TrustPinAttestError)
 }
 ```
 

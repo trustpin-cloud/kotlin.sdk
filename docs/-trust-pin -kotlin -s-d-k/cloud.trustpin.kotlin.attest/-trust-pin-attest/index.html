@@ -137,7 +137,22 @@ TrustPinAttest.prefetch()</code></pre><span class="copy-tooltip"><div class="cop
       </div>
       <div data-togglable="PROPERTY">
         <h2 class="tableheader">Properties</h2>
-        <div class="table"><a data-name="2131490180%2FProperties%2F-251573632" anchor-label="state" id="2131490180%2FProperties%2F-251573632" data-filterable-set=":/main"></a>
+        <div class="table"><a data-name="-125458804%2FProperties%2F-251573632" anchor-label="events" id="-125458804%2FProperties%2F-251573632" data-filterable-set=":/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/main" data-filterable-set=":/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="events.html"><span><span>events</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-125458804%2FProperties%2F-251573632"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="events.html">events</a><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines.flow/Flow///PointingToDeclaration/">Flow</span><span class="token operator">&lt;</span><a href="../-trust-pin-attest-event/index.html">TrustPinAttestEvent</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">The events of this instance as a cold <span data-unresolved-link="kotlinx.coroutines.flow/Flow///PointingToDeclaration/">Flow</span>; each collector receives the events emitted after it started. A collector that falls behind may miss earlier events; use <a href="set-event-listener.html">setEventListener</a> when every event matters.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2131490180%2FProperties%2F-251573632" anchor-label="state" id="2131490180%2FProperties%2F-251573632" data-filterable-set=":/main"></a>
           <div class="table-row table-row_content" data-filterable-current=":/main" data-filterable-set=":/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
@@ -156,7 +171,37 @@ TrustPinAttest.prefetch()</code></pre><span class="copy-tooltip"><div class="cop
       </div>
       <div data-togglable="FUNCTION">
         <h2 class="tableheader">Functions</h2>
-        <div class="table"><a data-name="-407484938%2FFunctions%2F-251573632" anchor-label="attestationHeaders" id="-407484938%2FFunctions%2F-251573632" data-filterable-set=":/main"></a>
+        <div class="table"><a data-name="210911229%2FFunctions%2F-251573632" anchor-label="assertionHeaders" id="210911229%2FFunctions%2F-251573632" data-filterable-set=":/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/main" data-filterable-set=":/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="assertion-headers.html"><span>assertion</span><wbr></wbr><span><span>Headers</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="210911229%2FFunctions%2F-251573632"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/main"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="assertion-headers.html"><span class="token function">assertionHeaders</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">payloadDigest<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns the headers for one sensitive operation: the attestation token and an assertion that binds this device's attested key to <a href="assertion-headers.html">payloadDigest</a>, the SHA-256 digest of whatever your backend will verify (for example the request body). Send both headers with that request; your backend passes them and its own digest to your verifier. Each call produces a new assertion. The token is bound as for <a href="get-token.html">getToken</a>: to the value set with <a href="set-token-binding.html">setTokenBinding</a>, or to the named request header the instance saw most recently.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1410420920%2FFunctions%2F-251573632" anchor-label="assertionHeadersBlocking" id="-1410420920%2FFunctions%2F-251573632" data-filterable-set=":/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/main" data-filterable-set=":/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="assertion-headers-blocking.html"><span>assertion</span><wbr></wbr><span>Headers</span><wbr></wbr><span><span>Blocking</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1410420920%2FFunctions%2F-251573632"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="assertion-headers-blocking.html"><span class="token function">assertionHeadersBlocking</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">payloadDigest<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Blocking form of <a href="assertion-headers.html">assertionHeaders</a>. Do not call from the main thread.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-407484938%2FFunctions%2F-251573632" anchor-label="attestationHeaders" id="-407484938%2FFunctions%2F-251573632" data-filterable-set=":/main"></a>
           <div class="table-row table-row_content" data-filterable-current=":/main" data-filterable-set=":/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
@@ -272,6 +317,21 @@ TrustPinAttest.prefetch()</code></pre><span class="copy-tooltip"><div class="cop
               <div>
                 <div class="title">
                   <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="reset-blocking.html"><span class="token function">resetBlocking</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Blocking form of <a href="reset.html">reset</a>. Do not call from the main thread.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="833684642%2FFunctions%2F-251573632" anchor-label="setEventListener" id="833684642%2FFunctions%2F-251573632" data-filterable-set=":/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":/main" data-filterable-set=":/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-event-listener.html"><span>set</span><wbr></wbr><span>Event</span><wbr></wbr><span><span>Listener</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="833684642%2FFunctions%2F-251573632"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/main"><div class="symbol monospace"><span class="token keyword">fun </span><a href="set-event-listener.html"><span class="token function">setEventListener</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">listener<span class="token operator">: </span><a href="../-trust-pin-attest-event-listener/index.html">TrustPinAttestEventListener</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Receives every event of this instance, in order, on a background thread. The listener only observes; it cannot change the module's behaviour, and a slow listener never delays a request. <code class="lang-kotlin">null</code> removes it. See <a href="../-trust-pin-attest-event/index.html">TrustPinAttestEvent</a>.</p></div></div></div>
                 </div>
               </div>
             </div>
