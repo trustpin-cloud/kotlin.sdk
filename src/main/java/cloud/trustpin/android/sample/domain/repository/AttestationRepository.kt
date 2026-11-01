@@ -15,7 +15,7 @@ interface AttestationRepository {
     /** The SDK's state, [AttestationStatus.NotSetUp] until [setUp] completes. */
     val status: StateFlow<AttestationStatus>
 
-    /** The attestation SDK's own log lines, for the on-screen log. */
+    /** The attestation SDK's own log lines and events (`[Event] …`), for the on-screen log. */
     val sdkLog: Flow<String>
 
     /** Sets attestation up from `assets/trustpin.json`, binds tokens to the session, prefetches. */
@@ -23,6 +23,12 @@ interface AttestationRepository {
 
     /** Logs in if there is no session, then calls the protected endpoint with the session. */
     suspend fun callProtectedEndpoint(): ProtectedCallOutcome
+
+    /**
+     * Logs in if there is no session, then posts the sample API's sensitive operation
+     * with the attestation token and an assertion over the request body.
+     */
+    suspend fun callSensitiveEndpoint(): ProtectedCallOutcome
 
     /** Drops the session; the next protected call logs in again. */
     fun signOut()

@@ -1,5 +1,6 @@
 package cloud.trustpin.android.sample.presentation
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import cloud.trustpin.android.sample.ServiceLocator
@@ -27,8 +28,16 @@ class MainViewModelFactory(
             attestationRepository = locator.attestationRepository,
             setUpAttestation = { logger -> locator.setUpAttestationUseCase(logger) },
             callProtectedEndpoint = { logger -> locator.callProtectedEndpointUseCase(logger) },
+            callSensitiveOperation = { logger -> locator.callSensitiveOperationUseCase(logger) },
             signOut = { logger -> locator.signOutUseCase(logger) },
             resetAttestation = { logger -> locator.resetAttestationUseCase(logger) },
+            // The on-screen log, attestation SDK lines and events included, also
+            // goes to logcat so `adb logcat -s TrustPinSample` tells the whole story.
+            mirrorLog = { entry -> Log.println(entry.level.priority, LOG_TAG, entry.message) },
         ) as T
+    }
+
+    private companion object {
+        const val LOG_TAG = "TrustPinSample"
     }
 }

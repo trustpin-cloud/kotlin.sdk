@@ -50,9 +50,9 @@ android {
 }
 
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:7.0.1")
-    implementation("cloud.trustpin:trustpin-okhttp:7.0.1")
-    implementation("cloud.trustpin:kotlin-attest:7.0.1")
+    implementation("cloud.trustpin:kotlin-sdk:7.1.0")
+    implementation("cloud.trustpin:trustpin-okhttp:7.1.0")
+    implementation("cloud.trustpin:kotlin-attest:7.1.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")

@@ -109,6 +109,7 @@ class MainActivity : AppCompatActivity() {
         }
         attestation.btnSetupAttestation.setOnClickListener { viewModel.dispatch(UiAction.SetupAttestation) }
         attestation.btnCallProtected.setOnClickListener { viewModel.dispatch(UiAction.CallProtectedEndpoint) }
+        attestation.btnCallSensitive.setOnClickListener { viewModel.dispatch(UiAction.CallSensitiveOperation) }
         attestation.btnSignOut.setOnClickListener { viewModel.dispatch(UiAction.SignOut) }
         attestation.btnResetAttestation.setOnClickListener { viewModel.dispatch(UiAction.ResetAttestation) }
 
@@ -177,6 +178,7 @@ class MainActivity : AppCompatActivity() {
         attestation.pinningRequiredBanner.visibility = if (state.isConfigured) View.GONE else View.VISIBLE
         attestation.btnSetupAttestation.isEnabled = state.isConfigured && !state.isAttestationSetUp && !state.isWorking
         attestation.btnCallProtected.isEnabled = state.isAttestationSetUp && !state.isWorking
+        attestation.btnCallSensitive.isEnabled = state.isAttestationSetUp && !state.isWorking
         attestation.btnSignOut.isEnabled = state.isAttestationSetUp && !state.isWorking
         attestation.btnResetAttestation.isEnabled = state.isAttestationSetUp && !state.isWorking
         attestation.tvAttestationState.text = getString(R.string.attestation_state, describe(state.attestationStatus))

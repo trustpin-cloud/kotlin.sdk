@@ -3,6 +3,7 @@ package cloud.trustpin.android.sample.presentation
 import cloud.trustpin.android.sample.domain.model.AttestationStatus
 import cloud.trustpin.android.sample.domain.model.DomainError
 import cloud.trustpin.android.sample.domain.usecase.CallProtectedEndpointUseCase
+import cloud.trustpin.android.sample.domain.usecase.CallSensitiveOperationUseCase
 import cloud.trustpin.android.sample.domain.usecase.ResetAttestationUseCase
 import cloud.trustpin.android.sample.domain.usecase.SetUpAttestationUseCase
 import cloud.trustpin.android.sample.domain.usecase.SignOutUseCase
@@ -40,6 +41,7 @@ class MainViewModelAttestationTest {
             attestationRepository = attestation,
             setUpAttestation = { logger -> SetUpAttestationUseCase(configuration, attestation, logger) },
             callProtectedEndpoint = { logger -> CallProtectedEndpointUseCase(attestation, logger) },
+            callSensitiveOperation = { logger -> CallSensitiveOperationUseCase(attestation, logger) },
             signOut = { logger -> SignOutUseCase(attestation, logger) },
             resetAttestation = { logger -> ResetAttestationUseCase(attestation, logger) },
         )
@@ -96,5 +98,21 @@ class MainViewModelAttestationTest {
         assertEquals(1, attestation.signOutCalls)
         assertEquals(1, attestation.resetCalls)
         assertEquals(AttestationStatus.Unavailable, state.attestationStatus)
+    }
+
+    @Test
+    fun sensitiveCallGoesThroughTheRepositoryAndTheLog() = runTest {
+        attestation.statusFlow.value = AttestationStatus.Unavailable
+        viewModel.dispatch(UiAction.CallSensitiveOperation)
+        assertEquals(1, attestation.sensitiveCalls)
+        assertEquals("Sensitive call: 200", state.transientMessage)
+        assertTrue(logged("POST /transfer answered 200"))
+        assertFalse(state.isWorking)
+    }
+
+    @Test
+    fun sdkEventsReachTheOnScreenLog() = runTest {
+        attestation.sdkLog.emit("[Event] KeyGenerated")
+        assertTrue(logged("[Event] KeyGenerated"))
     }
 }

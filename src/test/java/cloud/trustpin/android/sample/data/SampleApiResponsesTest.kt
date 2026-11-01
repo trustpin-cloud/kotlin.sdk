@@ -1,6 +1,7 @@
 package cloud.trustpin.android.sample.data
 
 import cloud.trustpin.android.sample.data.remote.SampleApiResponses
+import cloud.trustpin.android.sample.domain.model.ProtectedCallOutcome
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -45,7 +46,39 @@ class SampleApiResponsesTest {
     fun rejectionReasonIsShown() {
         val home = SampleApiResponses.home("""{"error":"attestation_required","reason":"no TrustPin-Attestation header"}""")!!
         assertNull(home.greeting)
-        assertEquals("rejected: no TrustPin-Attestation header", home.attestationSummary)
+        assertEquals("rejected: attestation_required (no TrustPin-Attestation header)", home.attestationSummary)
+    }
+
+    @Test
+    fun transferWithVerifiedAssertion() {
+        val home = SampleApiResponses.home(
+            """{"greeting":"Transfer of 1.00 to demo accepted","transfer":{"amount":"1.00","to":"demo","status":"accepted"},""" +
+                """"attestation":{"platform":"android","env":"production","result":"pass","reasons":[],"bound":true,"sub":"abcd1234","assertion":"verified"}}"""
+        )!!
+        assertEquals("Transfer of 1.00 to demo accepted", home.greeting)
+        assertEquals("android/production pass, bound, assertion verified", home.attestationSummary)
+    }
+
+    @Test
+    fun assertionRejectionShowsTheVerifierVerdict() {
+        val home = SampleApiResponses.home(
+            """{"error":"assertion_rejected","verifier":{"error":"attestation_failed","message":"assertion rejected","reasons":["assertion_invalid"]}}"""
+        )!!
+        assertEquals("rejected: assertion_rejected; verifier said attestation_failed (assertion rejected) [assertion_invalid]", home.attestationSummary)
+        val tokenRejected = SampleApiResponses.home(
+            """{"error":"assertion_rejected","verifier":{"error":"invalid_token","message":"platform, app or environment no longer allowed by the policy"}}"""
+        )!!
+        assertEquals(
+            "rejected: assertion_rejected; verifier said invalid_token (platform, app or environment no longer allowed by the policy)",
+            tokenRejected.attestationSummary,
+        )
+    }
+
+    @Test
+    fun responseExcerptIsOneBoundedLine() {
+        assertEquals("{ \"a\": 1 }", ProtectedCallOutcome.excerpt("  {\n  \"a\": 1 }\n"))
+        assertNull(ProtectedCallOutcome.excerpt("   "))
+        assertEquals(ProtectedCallOutcome.EXCERPT_LENGTH, ProtectedCallOutcome.excerpt("x".repeat(5_000))!!.length)
     }
 
     @Test

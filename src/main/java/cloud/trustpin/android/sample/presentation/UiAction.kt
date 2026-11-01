@@ -24,6 +24,8 @@ sealed interface UiAction {
 
     data object CallProtectedEndpoint : UiAction
 
+    data object CallSensitiveOperation : UiAction
+
     data object SignOut : UiAction
 
     data object ResetAttestation : UiAction

@@ -29,8 +29,10 @@ class CallProtectedEndpointUseCase(
         if (outcome.loggedIn) logger.info("Logged in to the sample API (new session)")
         val line = "GET /home answered ${outcome.statusCode} (attestation header sent: ${outcome.attestationHeaderSent})"
         if (outcome.isSuccess) logger.success(line) else logger.warning(line)
+        logger.debug("Sent headers: ${outcome.sentHeaderNames.sorted().joinToString()}")
         outcome.greeting?.let { logger.info("API: $it") }
         outcome.attestationSummary?.let { logger.info("API attestation: $it") }
+        if (!outcome.isSuccess) outcome.responseExcerpt?.let { logger.debug("API response: $it") }
         return outcome
     }
 }

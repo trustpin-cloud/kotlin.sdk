@@ -7,6 +7,7 @@ import cloud.trustpin.android.sample.domain.model.PinningCredentials
 import cloud.trustpin.android.sample.domain.repository.AttestationRepository
 import cloud.trustpin.android.sample.domain.repository.ConfigurationRepository
 import cloud.trustpin.android.sample.domain.usecase.CallProtectedEndpointUseCase
+import cloud.trustpin.android.sample.domain.usecase.CallSensitiveOperationUseCase
 import cloud.trustpin.android.sample.domain.usecase.ConfigurePinningFromAssetsUseCase
 import cloud.trustpin.android.sample.domain.usecase.ConfigurePinningUseCase
 import cloud.trustpin.android.sample.domain.usecase.FetchCertificateUseCase
@@ -39,14 +40,18 @@ class MainViewModel(
     private val attestationRepository: AttestationRepository,
     private val setUpAttestation: (logger: UiLogSink) -> SetUpAttestationUseCase,
     private val callProtectedEndpoint: (logger: UiLogSink) -> CallProtectedEndpointUseCase,
+    private val callSensitiveOperation: (logger: UiLogSink) -> CallSensitiveOperationUseCase,
     private val signOut: (logger: UiLogSink) -> SignOutUseCase,
     private val resetAttestation: (logger: UiLogSink) -> ResetAttestationUseCase,
+    /** Mirrors every on-screen log entry elsewhere (the factory passes logcat); nothing by default. */
+    private val mirrorLog: (LogEntry) -> Unit = {},
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(UiState.Initial)
     val state: StateFlow<UiState> = _state.asStateFlow()
 
     private val logSink = UiLogSink { entry ->
+        mirrorLog(entry)
         _state.update { it.copy(logEntries = it.logEntries + entry) }
     }
 
@@ -73,6 +78,7 @@ class MainViewModel(
             UiAction.ClearLog -> _state.update { it.copy(logEntries = emptyList()) }
             UiAction.SetupAttestation -> handleSetupAttestation()
             UiAction.CallProtectedEndpoint -> handleCallProtected()
+            UiAction.CallSensitiveOperation -> handleCallSensitive()
             UiAction.SignOut -> handleSignOut()
             UiAction.ResetAttestation -> handleResetAttestation()
             UiAction.ConsumeTransientMessage -> _state.update { it.copy(transientMessage = null) }
@@ -173,6 +179,11 @@ class MainViewModel(
     private fun handleCallProtected() = runWork(failurePrefix = "Protected call failed") {
         val outcome = callProtectedEndpoint(logSink).invoke()
         "Protected call: ${outcome.statusCode}"
+    }
+
+    private fun handleCallSensitive() = runWork(failurePrefix = "Sensitive call failed") {
+        val outcome = callSensitiveOperation(logSink).invoke()
+        "Sensitive call: ${outcome.statusCode}"
     }
 
     private fun handleSignOut() {

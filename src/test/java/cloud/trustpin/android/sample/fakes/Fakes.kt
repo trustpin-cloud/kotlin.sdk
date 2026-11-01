@@ -35,6 +35,11 @@ class FakeAttestationRepository : AttestationRepository {
     var setUpError: DomainError? = null
     var outcome = ProtectedCallOutcome(200, loggedIn = true, attestationHeaderSent = true, greeting = "Welcome back, Demo!", attestationSummary = "android/production pass, bound")
     var callError: DomainError? = null
+    var sensitiveOutcome = ProtectedCallOutcome(
+        200, loggedIn = false, attestationHeaderSent = true, assertionHeaderSent = true,
+        greeting = "Transfer of 1.00 to demo accepted", attestationSummary = "android/production pass, bound, assertion verified",
+    )
+    var sensitiveCalls = 0
     var setUpCalls = 0
     var signOutCalls = 0
     var resetCalls = 0
@@ -48,6 +53,12 @@ class FakeAttestationRepository : AttestationRepository {
     override suspend fun callProtectedEndpoint(): ProtectedCallOutcome {
         callError?.let { throw it }
         return outcome
+    }
+
+    override suspend fun callSensitiveEndpoint(): ProtectedCallOutcome {
+        sensitiveCalls++
+        callError?.let { throw it }
+        return sensitiveOutcome
     }
 
     override fun signOut() { signOutCalls++ }

@@ -15,6 +15,7 @@ import cloud.trustpin.android.sample.domain.usecase.ConfigurePinningFromAssetsUs
 import cloud.trustpin.android.sample.domain.usecase.ConfigurePinningUseCase
 import cloud.trustpin.android.sample.domain.usecase.FetchCertificateUseCase
 import cloud.trustpin.android.sample.domain.usecase.CallProtectedEndpointUseCase
+import cloud.trustpin.android.sample.domain.usecase.CallSensitiveOperationUseCase
 import cloud.trustpin.android.sample.domain.usecase.ResetAttestationUseCase
 import cloud.trustpin.android.sample.domain.usecase.SetUpAttestationUseCase
 import cloud.trustpin.android.sample.domain.usecase.SignOutUseCase
@@ -68,6 +69,9 @@ class ServiceLocator(
 
     fun callProtectedEndpointUseCase(logger: Logger): CallProtectedEndpointUseCase =
         CallProtectedEndpointUseCase(attestationRepository, logger)
+
+    fun callSensitiveOperationUseCase(logger: Logger): CallSensitiveOperationUseCase =
+        CallSensitiveOperationUseCase(attestationRepository, logger)
 
     fun signOutUseCase(logger: Logger): SignOutUseCase = SignOutUseCase(attestationRepository, logger)
 

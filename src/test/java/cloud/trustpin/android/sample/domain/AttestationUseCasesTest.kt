@@ -3,6 +3,7 @@ package cloud.trustpin.android.sample.domain
 import cloud.trustpin.android.sample.domain.model.AttestationStatus
 import cloud.trustpin.android.sample.domain.model.DomainError
 import cloud.trustpin.android.sample.domain.usecase.CallProtectedEndpointUseCase
+import cloud.trustpin.android.sample.domain.usecase.CallSensitiveOperationUseCase
 import cloud.trustpin.android.sample.domain.usecase.SetUpAttestationUseCase
 import cloud.trustpin.android.sample.fakes.FakeAttestationRepository
 import cloud.trustpin.android.sample.fakes.FakeConfigurationRepository
@@ -63,5 +64,35 @@ class AttestationUseCasesTest {
         val outcome = CallProtectedEndpointUseCase(attestation, logger)()
         assertEquals(401, outcome.statusCode)
         assertTrue(logger.lines.any { it.first == "warning" && it.second.startsWith("GET /home answered 401") })
+    }
+
+    @Test
+    fun sensitiveCallRequiresSetUp() = runTest {
+        assertFailsWith<DomainError.Validation> { CallSensitiveOperationUseCase(attestation, logger)() }
+        assertEquals(0, attestation.sensitiveCalls)
+    }
+
+    @Test
+    fun sensitiveCallLogsBothHeadersAndTheVerdict() = runTest {
+        attestation.statusFlow.value = AttestationStatus.Unavailable
+        val outcome = CallSensitiveOperationUseCase(attestation, logger)()
+        assertEquals(200, outcome.statusCode)
+        assertTrue(outcome.assertionHeaderSent)
+        assertTrue(
+            logger.lines.any {
+                it.first == "success" && it.second.startsWith("POST /transfer answered 200") && it.second.contains("assertion header sent: true")
+            },
+        )
+        assertTrue(logger.lines.any { it.second == "API attestation: android/production pass, bound, assertion verified" })
+    }
+
+    @Test
+    fun aRejectedSensitiveCallIsAWarningNotAnError() = runTest {
+        attestation.statusFlow.value = AttestationStatus.Unavailable
+        attestation.sensitiveOutcome = attestation.sensitiveOutcome.copy(statusCode = 403, attestationSummary = "rejected: assertion_rejected")
+        val outcome = CallSensitiveOperationUseCase(attestation, logger)()
+        assertEquals(403, outcome.statusCode)
+        assertTrue(logger.lines.any { it.first == "warning" && it.second.startsWith("POST /transfer answered 403") })
+        assertTrue(logger.lines.any { it.second == "API attestation: rejected: assertion_rejected" })
     }
 }

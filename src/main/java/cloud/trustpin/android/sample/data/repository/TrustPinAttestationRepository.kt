@@ -26,6 +26,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.security.MessageDigest
 
 /**
  * [AttestationRepository] over `TrustPinAttest.default` and the sample API
@@ -39,7 +40,12 @@ import okhttp3.RequestBody.Companion.toRequestBody
  *   yet), then `GET /home` with the bearer token. The OkHttp adapter adds the
  *   `TrustPin-Attestation` header, bound to that `Authorization` value, and the
  *   API echoes the verified claims. A `401` drops the session.
+ * - [callSensitiveEndpoint]: the same login, then `POST /transfer` with the
+ *   token and an assertion over the body's SHA-256 digest
+ *   (`TrustPinAttest.assertionHeaders`), both set on the request by hand; the
+ *   API forwards token, assertion and its own digest to the verifier.
  * - [signOut] drops the session, so the next token is bound to a new one.
+ * - The SDK's events reach the on-screen log as `[Event] …` lines.
  *
  * The test API's URL and demo login come from `assets/test-api.json`
  * ([SampleApiConfig]), kept apart from the SDK configuration in `trustpin.json`.
@@ -72,6 +78,8 @@ class TrustPinAttestationRepository(
         TrustPinAttest.default.setStateListener { state ->
             if (_status.value != AttestationStatus.NotSetUp) _status.value = state.toAttestationStatus()
         }
+        // Events carry durations, dates, counts and reason codes only; showing them is safe.
+        TrustPinAttest.default.setEventListener { event -> _sdkLog.tryEmit("[Event] $event") }
     }
 
     override suspend fun setUp() = mapErrors("Attestation setup failed") {
@@ -102,6 +110,45 @@ class TrustPinAttestationRepository(
             attestationHeaderSent = TrustPinAttest.HEADER_NAME in result.sentHeaderNames,
             greeting = home?.greeting,
             attestationSummary = home?.attestationSummary,
+            sentHeaderNames = result.sentHeaderNames,
+            responseExcerpt = ProtectedCallOutcome.excerpt(result.body),
+        )
+    }
+
+    override suspend fun callSensitiveEndpoint(): ProtectedCallOutcome = mapErrors("Sensitive call failed") {
+        val api = loadTestApi()
+        val existing = sessionToken
+        val token = existing ?: login(api).also { sessionToken = it }
+        val url = "${api.baseUrl}/transfer"
+        val authorization = "Bearer $token"
+        val body = SampleApiResponses.transferBody(amount = "1.00", to = "demo").toByteArray(Charsets.UTF_8)
+
+        // The token first, so the header binding sees this request's session value;
+        // then both headers for the sensitive operation: the token and an assertion
+        // over the body's digest, which the sample API forwards to the verifier
+        // (spec 009). The headers are set by hand, so the client without the
+        // attestation interceptor sends exactly these.
+        val tokenHeaders = TrustPinAttest.default.attestationHeaders(url, mapOf(AUTHORIZATION to listOf(authorization)))
+        val assertionHeaders = TrustPinAttest.default.assertionHeaders(sha256(body))
+        val request = Request.Builder()
+            .url(url)
+            .header(AUTHORIZATION, authorization)
+            .apply { (tokenHeaders + assertionHeaders).forEach { (name, value) -> header(name, value) } }
+            .post(body.toRequestBody(JSON))
+            .build()
+        val result = httpClient.withoutAttestation.newCall(request).executeAsync()
+        if (result.code == 401) sessionToken = null
+
+        val home = SampleApiResponses.home(result.body)
+        ProtectedCallOutcome(
+            statusCode = result.code,
+            loggedIn = existing == null,
+            attestationHeaderSent = TrustPinAttest.HEADER_NAME in result.sentHeaderNames,
+            assertionHeaderSent = TrustPinAttest.ASSERTION_HEADER_NAME in result.sentHeaderNames,
+            greeting = home?.greeting,
+            attestationSummary = home?.attestationSummary,
+            sentHeaderNames = result.sentHeaderNames,
+            responseExcerpt = ProtectedCallOutcome.excerpt(result.body),
         )
     }
 
@@ -134,6 +181,8 @@ class TrustPinAttestationRepository(
         return SampleApiResponses.loginToken(result.body)
             ?: throw DomainError.Network("Login failed: no token in the response")
     }
+
+    private fun sha256(bytes: ByteArray): ByteArray = MessageDigest.getInstance("SHA-256").digest(bytes)
 
     private companion object {
         const val AUTHORIZATION = "Authorization"

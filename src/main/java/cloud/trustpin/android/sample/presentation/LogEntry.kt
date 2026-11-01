@@ -9,11 +9,11 @@ data class LogEntry(
     val level: Level,
     val message: String,
 ) {
-    enum class Level(val icon: String) {
-        INFO("⚙️"),
-        SUCCESS("✅"),
-        WARNING("⚠️"),
-        ERROR("❌"),
-        DEBUG("🐛"),
+    enum class Level(val icon: String, val priority: Int) {
+        INFO("⚙️", android.util.Log.INFO),
+        SUCCESS("✅", android.util.Log.INFO),
+        WARNING("⚠️", android.util.Log.WARN),
+        ERROR("❌", android.util.Log.ERROR),
+        DEBUG("🐛", android.util.Log.DEBUG),
     }
 }
