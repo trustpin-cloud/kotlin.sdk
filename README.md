@@ -70,7 +70,7 @@ JVM customers should request access to the hardened JVM JAR via email at [suppor
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:7.1.0")
+    implementation("cloud.trustpin:kotlin-sdk:7.1.1")
 }
 ```
 
@@ -78,7 +78,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'cloud.trustpin:kotlin-sdk:7.1.0'
+    implementation 'cloud.trustpin:kotlin-sdk:7.1.1'
 }
 ```
 
@@ -88,7 +88,7 @@ dependencies {
 <dependency>
     <groupId>cloud.trustpin</groupId>
     <artifactId>kotlin-sdk</artifactId>
-    <version>7.1.0</version>
+    <version>7.1.1</version>
 </dependency>
 ```
 
@@ -102,8 +102,8 @@ Thin, optional integration artifacts published to Maven Central alongside the SD
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:trustpin-okhttp:7.1.0")  // OkHttp
-    implementation("cloud.trustpin:trustpin-ktor:7.1.0")    // Ktor (OkHttp engine); includes trustpin-okhttp
+    implementation("cloud.trustpin:trustpin-okhttp:7.1.1")  // OkHttp
+    implementation("cloud.trustpin:trustpin-ktor:7.1.1")    // Ktor (OkHttp engine); includes trustpin-okhttp
 }
 ```
 
@@ -296,7 +296,7 @@ The `default` TrustPin instance can be configured from a JSON file in your appli
 | `project_id` | ✅ | Project identifier |
 | `public_key` | ✅ | Base64-encoded public key |
 | `mode` | ❌ | `"strict"` (default) or `"permissive"` |
-| `configuration_url` | ❌ | Optional custom source (HTTPS only) |
+| `configuration_url` | ❌ | Optional custom source (HTTPS, public host only) |
 | `embedded_configuration_asset` | ❌ | Asset name of the bundled signed configuration (see [Embedded configuration](#-embedded-configuration)) |
 
 Unknown top-level keys are ignored for forward compatibility.
@@ -324,7 +324,7 @@ app/src/ff/assets/trustpin.json      ← overrides for the `ff` product flavor
 - **Default instance only.** File-based setup configures `TrustPin.default`. Named instances (`TrustPin.instance(id)`) continue to use programmatic `TrustPinConfiguration(...)`.
 - **Android only.** The hardened JVM JAR does not include `fromAssets`.
 - **The file is bundled into the APK** — `public_key` is the verification key for signed pin payloads, not key material.
-- **Failure modes** (file missing, malformed JSON, invalid `mode`, non-HTTPS `configuration_url`, etc.) all surface as `TrustPinError.InvalidProjectConfig`. A descriptive reason is written to logcat under the `[TrustPin]` tag.
+- **Failure modes** (file missing, malformed JSON, invalid `mode`, non-HTTPS `configuration_url`, etc.) all surface as `TrustPinError.InvalidProjectConfig`. A descriptive reason is written to logcat under the `[TrustPin]` tag. A `configuration_url` whose host is loopback or a private or reserved IP address is accepted by `fromAssets` and rejected by `setup()` with `TrustPinError.InvalidProjectConfig`.
 - **No log-level field** — log verbosity stays under programmatic control via `TrustPin.setLogLevel(...)`.
 
 ---
@@ -455,6 +455,11 @@ TrustPin.setup(
 )
 ```
 
+The URL must use HTTPS and name a public host. `setup()` throws
+`TrustPinError.InvalidProjectConfig` for a loopback host (`localhost`, `127.0.0.0/8`,
+`::1`) or a private, link-local, multicast or reserved IP address, including the
+Android emulator's `10.0.2.2`. Public DNS names and public IP addresses are accepted.
+
 ### Manual certificate verification
 
 For custom networking stacks or certificate inspection:
@@ -499,7 +504,7 @@ same version, starting with 7.0.0.
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-attest:7.1.0")
+    implementation("cloud.trustpin:kotlin-attest:7.1.1")
 }
 ```
 

@@ -47,7 +47,7 @@ The optional app attestation module ships as a second AAR, `cloud.trustpin:kotli
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-sdk:7.1.0")
+    implementation("cloud.trustpin:kotlin-sdk:7.1.1")
 }
 ```
 
@@ -55,7 +55,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'cloud.trustpin:kotlin-sdk:7.1.0'
+    implementation 'cloud.trustpin:kotlin-sdk:7.1.1'
 }
 ```
 
@@ -65,7 +65,7 @@ dependencies {
 <dependency>
     <groupId>cloud.trustpin</groupId>
     <artifactId>kotlin-sdk</artifactId>
-    <version>7.1.0</version>
+    <version>7.1.1</version>
 </dependency>
 ```
 
@@ -75,8 +75,8 @@ Thin, optional artifacts versioned in lockstep with the SDK. Neither pulls in th
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:trustpin-okhttp:7.1.0")  // OkHttp
-    implementation("cloud.trustpin:trustpin-ktor:7.1.0")    // Ktor (OkHttp engine); includes trustpin-okhttp
+    implementation("cloud.trustpin:trustpin-okhttp:7.1.1")  // OkHttp
+    implementation("cloud.trustpin:trustpin-ktor:7.1.1")    // Ktor (OkHttp engine); includes trustpin-okhttp
 }
 ```
 
@@ -84,7 +84,7 @@ dependencies {
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-attest:7.1.0")
+    implementation("cloud.trustpin:kotlin-attest:7.1.1")
 }
 ```
 
@@ -118,7 +118,7 @@ This is the primary Android entry point. Drop a `trustpin.json` into the app mod
 }
 ```
 
-`organization_id`, `project_id`, `public_key` are required. `mode` is `"strict"` (default) or `"permissive"`. An optional `configuration_url` overrides the hosted configuration source — when present it must use HTTPS. An optional `embedded_configuration_asset` names a bundled signed configuration in `assets/` used only when no online source and no previously fetched configuration is available (see the README section "Embedded configuration" for the requirements). Unknown top-level keys are ignored for forward compatibility.
+`organization_id`, `project_id`, `public_key` are required. `mode` is `"strict"` (default) or `"permissive"`. An optional `configuration_url` overrides the hosted configuration source — when present it must use HTTPS and name a public host; a loopback host or a private or reserved IP address makes `setup()` throw `TrustPinError.InvalidProjectConfig`. An optional `embedded_configuration_asset` names a bundled signed configuration in `assets/` used only when no online source and no previously fetched configuration is available (see the README section "Embedded configuration" for the requirements). Unknown top-level keys are ignored for forward compatibility.
 
 **Per-flavor / per-build-type overrides** ride on standard Android source-set asset merging — no Gradle plugin required:
 
@@ -377,7 +377,7 @@ same version, starting with 7.0.0.
 
 ```kotlin
 dependencies {
-    implementation("cloud.trustpin:kotlin-attest:7.1.0")
+    implementation("cloud.trustpin:kotlin-attest:7.1.1")
 }
 ```
 
