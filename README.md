@@ -524,7 +524,7 @@ in strict mode an unregistered verifier host is never reached.
 **Setup.** Set up pinning first, then attestation:
 
 ```kotlin
-TrustPin.setup(TrustPinConfiguration.fromAssets(context).withAndroidStorage(context))
+TrustPin.setup(TrustPinConfiguration.fromAssets(context))   // already applies withAndroidStorage
 TrustPinAttest.setup(context, TrustPinAttestConfiguration.fromAssets(context))
 TrustPinAttest.bindToHeader("Authorization")   // bind tokens to the session
 TrustPinAttest.prefetch()                       // so the first request does not wait
@@ -555,7 +555,8 @@ prefetched until one is known; call `setTokenBinding` with the session value
 before `prefetch()`. With header binding, `getToken()` returns a token bound
 to the most recent request this instance saw; use `setTokenBinding` for
 clients that send no such request. `setTokenBinding(null)` removes the fixed
-binding only.
+binding only; `bindToHeader(null)` stops header binding and also clears a
+fixed binding.
 
 **State and logging.** `TrustPinAttest.state` is `Unavailable`, `Attesting`,
 `Ready(expiresAtMillis)` or `Failed(error, retryAtMillis)`;
@@ -566,8 +567,8 @@ the module's own logging, off by default; pass `null` to `setLogSink` to
 restore logcat. `TrustPinAttest.reset()` (a suspending call; `resetBlocking()`
 for Java) discards the attested key so the next request attests a new one.
 
-**Verifier compatibility.** kotlin-attest 7.1.0 requires an attestation
-verifier at contract version 2 or later. With an older verifier the state is
+**Verifier compatibility.** kotlin-attest 7.1.x requires an attestation
+verifier at contract version 2 or later: verifier 1.0.0 or later. With an older verifier the state is
 `Failed(VerifierIncompatible, …)` and no header is sent.
 
 **Sensitive operations.** For an operation your backend must not accept on a
@@ -575,6 +576,8 @@ reused token alone (a payment, a change of beneficiary), ask for an assertion
 bound to the operation:
 
 ```kotlin
+// With header binding, let the SDK see this request's Authorization value first.
+val tokenHeaders = TrustPinAttest.attestationHeaders(url, mapOf("Authorization" to listOf(auth)))
 val headers = TrustPinAttest.assertionHeaders(sha256(body))   // suspending; assertionHeadersBlocking for Java
 ```
 
@@ -592,7 +595,9 @@ a third party, that disclosure is yours to make.
 **Emulators and development.** Emulators cannot produce device evidence. For
 development, your verifier's operator can issue a debug token; pass it as
 `TrustPinAttestConfiguration.debugToken` from a debug-only build field. It is
-used only when the app is debuggable and ignored in every other build.
+used only when the app is debuggable and ignored in every other build. A debug
+token presents the app by the package name it runs as, so a debug build with an
+`applicationIdSuffix` must be listed in the policy under that package name.
 
 **One process.** Attestation is designed for one process per app: set it up
 in the process that performs your networking. Two processes attesting at the
